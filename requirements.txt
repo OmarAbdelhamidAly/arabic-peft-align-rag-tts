@@ -1,0 +1,36 @@
+# Core LLM & Training
+transformers
+trl
+peft
+accelerate
+bitsandbytes
+datasets
+sentencepiece
+protobuf
+torch
+
+# Alignment
+wandb
+tensorboard
+
+# TTS
+TTS
+librosa
+scipy
+soundfile
+
+# RAG
+langchain
+langchain-community
+qdrant-client
+sentence-transformers
+pypdf
+faiss-cpu
+
+# Utilities
+python-dotenv
+tqdm
+pandas
+numpy
+matplotlib
+ipykernel
