@@ -99,6 +99,18 @@ arabic-peft-align-rag-tts/
 
 ---
 
+## 📈 Project Phases & Evolution
+
+The development of this project is structured into three distinct phases, evolving from manual experimentation to a fully autonomous AI system. For a deep dive into the engineering mindset and "boring details" of each phase, read the dedicated documentation below:
+
+| Phase | Description | Read More |
+|:------|:------------|:----------|
+| **Phase 1: The R&D Foundation** | Manual data generation, SFT, parallel alignments, local LLM-as-a-judge evaluation, and standard model serving. Focuses on proving model quality and discovering the best architecture. | [📖 Read Phase 1](docs/PHASE_1_RND.md) |
+| **Phase 2: MLOps Automation** | Transforming the R&D notebooks into a robust Kubeflow Pipeline using Papermill and MLflow. Zero human intervention from dataset to Hugging Face deployment. | [📖 Read Phase 2](docs/PHASE_2_MLOPS.md) |
+| **Phase 3: The Data Flywheel** | Active learning loop. The system monitors live RAG queries, detects weaknesses, generates targeted "hard" datasets, and triggers Phase 2 automatically to self-improve. | [📖 Read Phase 3](docs/PHASE_3_FLYWHEEL.md) |
+
+---
+
 ## 📚 Service Documentation
 
 لكل خدمة ملف `README` خاص بها يشرح تفاصيل هيكلتها وكيفية تشغيلها بشكل مستقل:
