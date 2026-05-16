@@ -32,9 +32,10 @@
                     │              User / Client               │
                     └──────────────────┬──────────────────────┘
                                        │  Arabic question (HTTP)
-                    ┌──────────────────▼──────────────────────┐
-                    │ 1. service-rag           [Online API]    │
-                    │    Retrieve → Generate → Synthesize      │
+                    ┌─────────────────────────────────────────┐
+                    │ 1. service-rag                          │
+                    │  [Online API] Retrieve → Generate       │
+                    │  [Offline] Fine-tune LLM for RAG        │
                     └──────┬────────────────────┬─────────────┘
                            │                    │
           ┌────────────────▼────────┐  ┌────────▼────────────────┐
@@ -94,7 +95,7 @@ arabic-peft-align-rag-tts/
 |:-:|:-------------|:------|:---------------------|
 | 1 | **`service-medical-llm`** | **Offline (Training)** <br> **Online (Inference)** | ✅ **Done** <br> 🟡 **Code ready** <br> _Unified service for fine-tuning via KFP and serving via vLLM._ |
 | 2 | **`service-tts`** | **Offline (Fine-Tuning)** <br> **Online (API)** | 🔴 **Not started** <br> 🟡 **Skeleton ready** <br> _Voice cloning & synthesis using XTTS-v2._ |
-| 3 | **`service-rag`** | **Online (API)** | 🔴 **Stub** <br> _RAG orchestrator using Qdrant and E5._ |
+| 3 | **`service-rag`** | **Offline (Fine-Tuning)** <br> **Online (API)** | 🔴 **Not started** <br> 🔴 **Stub** <br> _RAG orchestrator + LLM fine-tuning for complex mental health docs._ |
 
 ---
 
