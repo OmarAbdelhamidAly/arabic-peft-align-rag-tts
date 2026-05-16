@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🗣️ Arabic Medical LLM — Full Production Pipeline
+# 🗣️ Arabic Mental Health LLM — Full Production Pipeline
 
 ### PEFT · Alignment · RAG · TTS Fine-Tuning · Microservices · MLOps
 
@@ -18,7 +18,7 @@
 
 <br/>
 
-> **End-to-end Arabic medical voice assistant** — from raw data to a deployable, voice-enabled RAG system.
+> **End-to-end Arabic mental health voice assistant** — from raw data to a deployable, voice-enabled RAG system.
 > Built with Clean Architecture and Microservices across three independently deployable services.
 
 </div>
@@ -60,7 +60,7 @@
 
                     ┌──────────────────────┐
                     │    Qdrant Vector DB   │
-                    │  Arabic Medical Docs  │
+                    │  Arabic Mental Health Docs  │
                     └──────────────────────┘
 ```
 
@@ -117,7 +117,7 @@ arabic-peft-align-rag-tts/
 ┌─────────────────────────────────────────────────────────────────────┐
 │  PHASE A — LLM Training                                   ✅ DONE   │
 ├─────────────────────────────────────────────────────────────────────┤
-│  1. Collect & curate Arabic medical data                            │
+│  1. Collect & curate Arabic mental health data                            │
 │  2. Generate SFT dataset + 6 preference alignment datasets          │
 │  3. SFT notebook → qwen_medical_arabic_lora                         │
 │  4. Parallel alignment via Papermill:                               │
@@ -129,7 +129,7 @@ arabic-peft-align-rag-tts/
 ┌─────────────────────────────────────────────────────────────────────┐
 │  PHASE B — TTS Fine-Tuning                                🔴 TODO   │
 ├─────────────────────────────────────────────────────────────────────┤
-│  1. Select Arabic medical speech dataset                            │
+│  1. Select Arabic mental health speech dataset                            │
 │  2. prepare_data.py → normalize + segment audio                     │
 │  3. train_xtts.py → fine-tune XTTS-v2                               │
 │  4. evaluate_tts.py → MOS + WER metrics                             │
@@ -141,7 +141,7 @@ arabic-peft-align-rag-tts/
 ├─────────────────────────────────────────────────────────────────────┤
 │  1. Start service-medical-llm locally (vLLM / KServe)               │
 │  2. POST /v1/chat/completions → verify LLM responses                │
-│  3. Ingest Arabic medical PDFs → Qdrant via ingest_documents.py     │
+│  3. Ingest Arabic mental health PDFs → Qdrant via ingest_documents.py     │
 │  4. POST /rag/query → retrieval + grounded generation               │
 │  5. Arabic text answer + synthesized audio response                 │
 └─────────────────────────────────────────────────────────────────────┘
@@ -251,7 +251,7 @@ docker-compose up --build
 ```bash
 python services/service-rag/scripts/ingest_documents.py \
   --source ./data/medical_docs/ \
-  --collection arabic_medical
+  --collection arabic_mental_health
 ```
 
 ### Query the full pipeline
@@ -259,7 +259,7 @@ python services/service-rag/scripts/ingest_documents.py \
 ```bash
 curl -X POST http://localhost:8003/rag/query \
   -H "Content-Type: application/json" \
-  -d '{"question": "ما هي أعراض السكري؟", "tts": true}'
+  -d '{"question": "ما هي أعراض الاكتئاب؟", "tts": true}'
 ```
 
 ---
