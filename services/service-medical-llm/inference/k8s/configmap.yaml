@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-inference-config
+  namespace: default
+data:
+  # Fine-tuned Arabic Medical LLM (SimPO-aligned, Qwen2.5-3B)
+  MODEL_ID: "OmarAbdelhamid/arabic-medical-qwen2-simpo"
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8080"
+  MAX_MODEL_LEN: "4096"
+  MAX_NUM_SEQS: "4"

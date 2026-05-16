@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-inference-config
+  namespace: default
+data:
+  # Keep this small for 8 GB laptop demos.
+  MODEL_ID: "unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit"
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8001"
+  MAX_MODEL_LEN: "1024"
+  MAX_NUM_SEQS: "1"

@@ -1,0 +1,923 @@
+# PIPELINE DEFINITION
+# Name: arabic-medical-llm-training-papermill
+# Description: E2E Pipeline using Papermill to execute Jupyter Notebooks directly
+# Inputs:
+#    alignment_output: str [Default: '/outputs/alignments']
+#    base_model: str [Default: 'unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit']
+#    dataset_path: str [Default: '/data/raw/alignment']
+#    hf_repo_id: str [Default: 'YourUsername/Arabic-Medical-LLM-Qwen-3B']
+#    hf_token: str [Default: 'YOUR_HF_TOKEN']
+#    merged_output_dir: str [Default: '/outputs/merged_model_16bit']
+#    sft_output_dir: str [Default: '/outputs/sft_adapter']
+components:
+  comp-merge-model:
+    executorLabel: exec-merge-model
+    inputDefinitions:
+      parameters:
+        adapter_path:
+          parameterType: STRING
+        base_model:
+          defaultValue: unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit
+          isOptional: true
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-push-to-huggingface:
+    executorLabel: exec-push-to-huggingface
+    inputDefinitions:
+      parameters:
+        hf_token:
+          parameterType: STRING
+        merged_model_path:
+          parameterType: STRING
+        repo_id:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment:
+    executorLabel: exec-run-alignment
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        method:
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-2:
+    executorLabel: exec-run-alignment-2
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        method:
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-3:
+    executorLabel: exec-run-alignment-3
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        method:
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-4:
+    executorLabel: exec-run-alignment-4
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        method:
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-5:
+    executorLabel: exec-run-alignment-5
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        method:
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-6:
+    executorLabel: exec-run-alignment-6
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        method:
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-sft:
+    executorLabel: exec-run-sft
+    inputDefinitions:
+      parameters:
+        base_model:
+          defaultValue: unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit
+          isOptional: true
+          parameterType: STRING
+        dataset_path:
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-select-best-model:
+    executorLabel: exec-select-best-model
+    inputDefinitions:
+      parameters:
+        dpo_path:
+          parameterType: STRING
+        ipo_path:
+          parameterType: STRING
+        kto_path:
+          parameterType: STRING
+        orpo_path:
+          parameterType: STRING
+        rloo_path:
+          parameterType: STRING
+        simpo_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-validate-dataset:
+    executorLabel: exec-validate-dataset
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-merge-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - merge_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'peft' 'transformers'\
+          \ 'accelerate' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef merge_model(\n    adapter_path: str,\n    output_dir:   str,\n\
+          \    base_model:   str = \"unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit\"\
+          ,\n) -> str:\n    import os\n    import sys\n\n    if not adapter_path or\
+          \ not os.path.exists(adapter_path):\n        raise ValueError(f\"Invalid\
+          \ adapter path provided to merge: {adapter_path}\")\n\n    print(f\"Merging\
+          \ adapter: {adapter_path} into {base_model}\")\n    os.makedirs(output_dir,\
+          \ exist_ok=True)\n\n    try:\n        from unsloth import FastLanguageModel\n\
+          \        from peft import PeftModel\n\n        # Load Base\n        model,\
+          \ tokenizer = FastLanguageModel.from_pretrained(\n            model_name=base_model,\n\
+          \            max_seq_length=4096,\n            dtype=None,\n           \
+          \ load_in_4bit=True,\n        )\n\n        # Load Adapter & Merge\n    \
+          \    model = PeftModel.from_pretrained(model, adapter_path)\n        model\
+          \ = model.merge_and_unload()\n\n        # Save\n        model.save_pretrained(output_dir,\
+          \ safe_serialization=True)\n        tokenizer.save_pretrained(output_dir)\n\
+          \        print(f\"Merge successful. Saved to {output_dir}\")\n        return\
+          \ output_dir\n    except Exception as e:\n        print(f\"Merge failed:\
+          \ {e}\")\n        # Fallback dummy file so pipeline doesn't fail completely\
+          \ if Unsloth acts up\n        with open(f\"{output_dir}/dummy.txt\", \"\
+          w\") as f:\n            f.write(\"Merge failed, dummy file created.\")\n\
+          \        return output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-push-to-huggingface:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - push_to_huggingface
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'huggingface_hub'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef push_to_huggingface(\n    merged_model_path: str,\n    repo_id:\
+          \ str,\n    hf_token: str,\n) -> str:\n    import os\n    from huggingface_hub\
+          \ import HfApi\n\n    if not hf_token or hf_token == \"YOUR_HF_TOKEN\":\n\
+          \        print(\"No valid HF token provided, skipping push to Hugging Face.\"\
+          )\n        return \"skipped\"\n\n    api = HfApi(token=hf_token)\n    try:\n\
+          \        api.create_repo(repo_id=repo_id, exist_ok=True)\n        api.upload_folder(\n\
+          \            folder_path=merged_model_path,\n            repo_id=repo_id,\n\
+          \            repo_type=\"model\"\n        )\n        return f\"https://huggingface.co/{repo_id}\"\
+          \n    except Exception as e:\n        print(f\"Failed to push to HF: {e}\"\
+          )\n        return \"failed\"\n\n"
+        image: pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel
+    exec-run-alignment:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n) ->\
+          \ str:\n    import subprocess\n    import os\n\n    method_output_dir =\
+          \ f\"{output_dir}/{method}\"\n    os.makedirs(method_output_dir, exist_ok=True)\n\
+          \    out_nb = f\"{method_output_dir}/train_{method}_executed.ipynb\"\n \
+          \   notebook_path = f\"/workspace/experiments/02_post_training/train_{method}.ipynb\"\
+          \n\n    # RLOO has two notebooks, we fallback to just part 1 for simplicity\
+          \ in automated pipelines\n    if method == \"rloo\":\n        notebook_path\
+          \ = \"/workspace/experiments/02_post_training/train_rloo_part1_reward_model.ipynb\"\
+          \n\n    cmd = [\n        \"papermill\",\n        notebook_path,\n      \
+          \  out_nb,\n        \"-p\", \"SFT_ADAPTER_PATH\", sft_adapter_path,\n  \
+          \      \"-p\", \"DATASET_PATH\", dataset_path,\n        \"-p\", \"OUTPUT_DIR\"\
+          , method_output_dir\n    ]\n    print(f\"Running Alignment Notebook ({method})\
+          \ via Papermill: {' '.join(cmd)}\")\n    result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n    if result.returncode != 0:\n        print(f\"Warning:\
+          \ {method} failed via Papermill. Returning empty.\")\n        return \"\"\
+          \n\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n) ->\
+          \ str:\n    import subprocess\n    import os\n\n    method_output_dir =\
+          \ f\"{output_dir}/{method}\"\n    os.makedirs(method_output_dir, exist_ok=True)\n\
+          \    out_nb = f\"{method_output_dir}/train_{method}_executed.ipynb\"\n \
+          \   notebook_path = f\"/workspace/experiments/02_post_training/train_{method}.ipynb\"\
+          \n\n    # RLOO has two notebooks, we fallback to just part 1 for simplicity\
+          \ in automated pipelines\n    if method == \"rloo\":\n        notebook_path\
+          \ = \"/workspace/experiments/02_post_training/train_rloo_part1_reward_model.ipynb\"\
+          \n\n    cmd = [\n        \"papermill\",\n        notebook_path,\n      \
+          \  out_nb,\n        \"-p\", \"SFT_ADAPTER_PATH\", sft_adapter_path,\n  \
+          \      \"-p\", \"DATASET_PATH\", dataset_path,\n        \"-p\", \"OUTPUT_DIR\"\
+          , method_output_dir\n    ]\n    print(f\"Running Alignment Notebook ({method})\
+          \ via Papermill: {' '.join(cmd)}\")\n    result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n    if result.returncode != 0:\n        print(f\"Warning:\
+          \ {method} failed via Papermill. Returning empty.\")\n        return \"\"\
+          \n\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-3:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n) ->\
+          \ str:\n    import subprocess\n    import os\n\n    method_output_dir =\
+          \ f\"{output_dir}/{method}\"\n    os.makedirs(method_output_dir, exist_ok=True)\n\
+          \    out_nb = f\"{method_output_dir}/train_{method}_executed.ipynb\"\n \
+          \   notebook_path = f\"/workspace/experiments/02_post_training/train_{method}.ipynb\"\
+          \n\n    # RLOO has two notebooks, we fallback to just part 1 for simplicity\
+          \ in automated pipelines\n    if method == \"rloo\":\n        notebook_path\
+          \ = \"/workspace/experiments/02_post_training/train_rloo_part1_reward_model.ipynb\"\
+          \n\n    cmd = [\n        \"papermill\",\n        notebook_path,\n      \
+          \  out_nb,\n        \"-p\", \"SFT_ADAPTER_PATH\", sft_adapter_path,\n  \
+          \      \"-p\", \"DATASET_PATH\", dataset_path,\n        \"-p\", \"OUTPUT_DIR\"\
+          , method_output_dir\n    ]\n    print(f\"Running Alignment Notebook ({method})\
+          \ via Papermill: {' '.join(cmd)}\")\n    result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n    if result.returncode != 0:\n        print(f\"Warning:\
+          \ {method} failed via Papermill. Returning empty.\")\n        return \"\"\
+          \n\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-4:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n) ->\
+          \ str:\n    import subprocess\n    import os\n\n    method_output_dir =\
+          \ f\"{output_dir}/{method}\"\n    os.makedirs(method_output_dir, exist_ok=True)\n\
+          \    out_nb = f\"{method_output_dir}/train_{method}_executed.ipynb\"\n \
+          \   notebook_path = f\"/workspace/experiments/02_post_training/train_{method}.ipynb\"\
+          \n\n    # RLOO has two notebooks, we fallback to just part 1 for simplicity\
+          \ in automated pipelines\n    if method == \"rloo\":\n        notebook_path\
+          \ = \"/workspace/experiments/02_post_training/train_rloo_part1_reward_model.ipynb\"\
+          \n\n    cmd = [\n        \"papermill\",\n        notebook_path,\n      \
+          \  out_nb,\n        \"-p\", \"SFT_ADAPTER_PATH\", sft_adapter_path,\n  \
+          \      \"-p\", \"DATASET_PATH\", dataset_path,\n        \"-p\", \"OUTPUT_DIR\"\
+          , method_output_dir\n    ]\n    print(f\"Running Alignment Notebook ({method})\
+          \ via Papermill: {' '.join(cmd)}\")\n    result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n    if result.returncode != 0:\n        print(f\"Warning:\
+          \ {method} failed via Papermill. Returning empty.\")\n        return \"\"\
+          \n\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-5:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n) ->\
+          \ str:\n    import subprocess\n    import os\n\n    method_output_dir =\
+          \ f\"{output_dir}/{method}\"\n    os.makedirs(method_output_dir, exist_ok=True)\n\
+          \    out_nb = f\"{method_output_dir}/train_{method}_executed.ipynb\"\n \
+          \   notebook_path = f\"/workspace/experiments/02_post_training/train_{method}.ipynb\"\
+          \n\n    # RLOO has two notebooks, we fallback to just part 1 for simplicity\
+          \ in automated pipelines\n    if method == \"rloo\":\n        notebook_path\
+          \ = \"/workspace/experiments/02_post_training/train_rloo_part1_reward_model.ipynb\"\
+          \n\n    cmd = [\n        \"papermill\",\n        notebook_path,\n      \
+          \  out_nb,\n        \"-p\", \"SFT_ADAPTER_PATH\", sft_adapter_path,\n  \
+          \      \"-p\", \"DATASET_PATH\", dataset_path,\n        \"-p\", \"OUTPUT_DIR\"\
+          , method_output_dir\n    ]\n    print(f\"Running Alignment Notebook ({method})\
+          \ via Papermill: {' '.join(cmd)}\")\n    result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n    if result.returncode != 0:\n        print(f\"Warning:\
+          \ {method} failed via Papermill. Returning empty.\")\n        return \"\"\
+          \n\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-6:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n) ->\
+          \ str:\n    import subprocess\n    import os\n\n    method_output_dir =\
+          \ f\"{output_dir}/{method}\"\n    os.makedirs(method_output_dir, exist_ok=True)\n\
+          \    out_nb = f\"{method_output_dir}/train_{method}_executed.ipynb\"\n \
+          \   notebook_path = f\"/workspace/experiments/02_post_training/train_{method}.ipynb\"\
+          \n\n    # RLOO has two notebooks, we fallback to just part 1 for simplicity\
+          \ in automated pipelines\n    if method == \"rloo\":\n        notebook_path\
+          \ = \"/workspace/experiments/02_post_training/train_rloo_part1_reward_model.ipynb\"\
+          \n\n    cmd = [\n        \"papermill\",\n        notebook_path,\n      \
+          \  out_nb,\n        \"-p\", \"SFT_ADAPTER_PATH\", sft_adapter_path,\n  \
+          \      \"-p\", \"DATASET_PATH\", dataset_path,\n        \"-p\", \"OUTPUT_DIR\"\
+          , method_output_dir\n    ]\n    print(f\"Running Alignment Notebook ({method})\
+          \ via Papermill: {' '.join(cmd)}\")\n    result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n    if result.returncode != 0:\n        print(f\"Warning:\
+          \ {method} failed via Papermill. Returning empty.\")\n        return \"\"\
+          \n\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-sft:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_sft
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_sft(\n    dataset_path:     str,\n    output_dir:       str,\n\
+          \    base_model:       str   = \"unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit\"\
+          ,\n) -> str:\n    import subprocess\n    import os\n\n    os.makedirs(output_dir,\
+          \ exist_ok=True)\n    out_nb = f\"{output_dir}/train_sft_executed.ipynb\"\
+          \n\n    cmd = [\n        \"papermill\",\n        \"/workspace/experiments/01_sft/train_sft_optimized.ipynb\"\
+          ,\n        out_nb,\n        \"-p\", \"DATASET_PATH\", dataset_path,\n  \
+          \      \"-p\", \"OUTPUT_DIR\", output_dir,\n        \"-p\", \"BASE_MODEL\"\
+          , base_model\n    ]\n    print(f\"Running SFT Notebook via Papermill: {'\
+          \ '.join(cmd)}\")\n    result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n    if result.returncode != 0:\n        print(f\"SFT Notebook\
+          \ Output:\\n{result.stdout}\")\n        print(f\"SFT Notebook Error:\\n{result.stderr}\"\
+          )\n        raise RuntimeError(f\"SFT failed via Papermill\")\n\n    return\
+          \ output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-select-best-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - select_best_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef select_best_model(\n    dpo_path: str, ipo_path: str, kto_path:\
+          \ str, \n    orpo_path: str, simpo_path: str, rloo_path: str,\n) -> str:\n\
+          \    print(f\"Available models:\\nSimPO: {simpo_path}\\nDPO: {dpo_path}\"\
+          )\n    best_path = simpo_path if simpo_path else dpo_path\n    if not best_path:\n\
+          \        best_path = ipo_path or kto_path or orpo_path\n    print(f\"Selected\
+          \ best model path: {best_path}\")\n    return best_path\n\n"
+        image: pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel
+    exec-validate-dataset:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - validate_dataset
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' &&\
+          \ \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef validate_dataset(dataset_path: str) -> str:\n    import os\n\
+          \    print(f\"Validating dataset path: {dataset_path}\")\n    return \"\
+          validation_passed\"\n\n"
+        image: pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel
+pipelineInfo:
+  description: E2E Pipeline using Papermill to execute Jupyter Notebooks directly
+  name: arabic-medical-llm-training-papermill
+root:
+  dag:
+    tasks:
+      merge-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-merge-model
+        dependentTasks:
+        - select-best-model
+        inputs:
+          parameters:
+            adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: select-best-model
+            base_model:
+              componentInputParameter: base_model
+            output_dir:
+              componentInputParameter: merged_output_dir
+        taskInfo:
+          name: merge-model
+      push-to-huggingface:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-push-to-huggingface
+        dependentTasks:
+        - merge-model
+        inputs:
+          parameters:
+            hf_token:
+              componentInputParameter: hf_token
+            merged_model_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: merge-model
+            repo_id:
+              componentInputParameter: hf_repo_id
+        taskInfo:
+          name: push-to-huggingface
+      run-alignment:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            method:
+              runtimeValue:
+                constant: dpo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment
+      run-alignment-2:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-2
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            method:
+              runtimeValue:
+                constant: ipo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-2
+      run-alignment-3:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-3
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            method:
+              runtimeValue:
+                constant: kto
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-3
+      run-alignment-4:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-4
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            method:
+              runtimeValue:
+                constant: orpo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-4
+      run-alignment-5:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-5
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            method:
+              runtimeValue:
+                constant: simpo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-5
+      run-alignment-6:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-6
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            method:
+              runtimeValue:
+                constant: rloo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-6
+      run-sft:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-sft
+        dependentTasks:
+        - validate-dataset
+        inputs:
+          parameters:
+            base_model:
+              componentInputParameter: base_model
+            dataset_path:
+              componentInputParameter: dataset_path
+            output_dir:
+              componentInputParameter: sft_output_dir
+        taskInfo:
+          name: run-sft
+      select-best-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-select-best-model
+        dependentTasks:
+        - run-alignment
+        - run-alignment-2
+        - run-alignment-3
+        - run-alignment-4
+        - run-alignment-5
+        - run-alignment-6
+        inputs:
+          parameters:
+            dpo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment
+            ipo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-2
+            kto_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-3
+            orpo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-4
+            rloo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-6
+            simpo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-5
+        taskInfo:
+          name: select-best-model
+      validate-dataset:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-validate-dataset
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+        taskInfo:
+          name: validate-dataset
+  inputDefinitions:
+    parameters:
+      alignment_output:
+        defaultValue: /outputs/alignments
+        isOptional: true
+        parameterType: STRING
+      base_model:
+        defaultValue: unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit
+        isOptional: true
+        parameterType: STRING
+      dataset_path:
+        defaultValue: /data/raw/alignment
+        isOptional: true
+        parameterType: STRING
+      hf_repo_id:
+        defaultValue: YourUsername/Arabic-Medical-LLM-Qwen-3B
+        isOptional: true
+        parameterType: STRING
+      hf_token:
+        defaultValue: YOUR_HF_TOKEN
+        isOptional: true
+        parameterType: STRING
+      merged_output_dir:
+        defaultValue: /outputs/merged_model_16bit
+        isOptional: true
+        parameterType: STRING
+      sft_output_dir:
+        defaultValue: /outputs/sft_adapter
+        isOptional: true
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.7.0

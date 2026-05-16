@@ -1,0 +1,5 @@
+filename|transcription|normalized_transcription
+# This file will be populated by prepare_data.py
+# Format: wavs/filename.wav|Arabic text|normalized text
+# Example:
+# wavs/clip_001.wav|ما هي أعراض مرض السكري؟|ما هي اعراض مرض السكري

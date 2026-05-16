@@ -1,0 +1,93 @@
+version: "3.8"
+
+services:
+  # LLM Inference Service (vLLM-based, deployed on K8s locally)
+  service-inference:
+    build:
+      context: ./services/service-medical-llm/inference
+      dockerfile: Dockerfile
+    container_name: service-inference
+    ports:
+      - "8001:8001"
+    environment:
+      - MODEL_ID=unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit
+      - MAX_MODEL_LEN=1024
+      - MAX_NUM_SEQS=1
+    volumes:
+      - ./models:/app/models
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - llm-network
+    # For K8s deployment, this is managed separately
+    profiles: ["docker-only"]
+
+  # TTS Service (XTTS-v2)
+  service-tts:
+    build:
+      context: ./services/service-tts
+      dockerfile: Dockerfile
+    container_name: service-tts
+    ports:
+      - "8002:8002"
+    environment:
+      - TTS_MODEL=tts_models/multilingual/multi-dataset/xtts_v2
+      - DEVICE=cpu  # Change to cuda if GPU available
+    volumes:
+      - ./audio_cache:/app/audio_cache
+      - ./models/tts:/app/models
+    depends_on:
+      - service-inference
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - llm-network
+
+  # RAG Service (Qdrant + E5 + Inference client)
+  service-rag:
+    build:
+      context: ./services/service-rag
+      dockerfile: Dockerfile
+    container_name: service-rag
+    ports:
+      - "8003:8003"
+    environment:
+      - INFERENCE_URL=http://service-inference:8001
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - EMBEDDING_MODEL=intfloat/multilingual-e5-large
+    depends_on:
+      - service-inference
+      - qdrant
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - llm-network
+
+  # Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-storage:/qdrant/storage
+    networks:
+      - llm-network
+
+networks:
+  llm-network:
+    driver: bridge
+
+volumes:
+  qdrant-storage:

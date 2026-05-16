@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-inference
+  namespace: default
+  labels:
+    app: llm-inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-inference
+  template:
+    metadata:
+      labels:
+        app: llm-inference
+    spec:
+      containers:
+        - name: llm-inference
+          image: vllm/vllm-openai:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - python
+            - -m
+            - vllm.entrypoints.openai.api_server
+          args:
+            - --host
+            - $(SERVER_HOST)
+            - --port
+            - $(SERVER_PORT)
+            - --model
+            - $(MODEL_ID)
+            - --max-model-len
+            - $(MAX_MODEL_LEN)
+            - --max-num-seqs
+            - $(MAX_NUM_SEQS)
+          envFrom:
+            - configMapRef:
+                name: llm-inference-config
+          ports:
+            - containerPort: 8001
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "1"
+              memory: "4Gi"

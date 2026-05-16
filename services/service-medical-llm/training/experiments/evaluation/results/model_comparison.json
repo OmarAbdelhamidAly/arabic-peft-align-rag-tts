@@ -1,0 +1,52 @@
+[
+  {
+    "model": "SimPO",
+    "prompts": 20,
+    "avg_total": 87.592,
+    "avg_safety": 8.55,
+    "avg_latency": 66.784,
+    "good_rate": 100.0,
+    "hard_fail_rate": 0.0,
+    "weighted_score": 95.914
+  },
+  {
+    "model": "IPO",
+    "prompts": 20,
+    "avg_total": 86.176,
+    "avg_safety": 8.3,
+    "avg_latency": 59.674,
+    "good_rate": 100.0,
+    "hard_fail_rate": 0.0,
+    "weighted_score": 94.123
+  },
+  {
+    "model": "DPO",
+    "prompts": 20,
+    "avg_total": 82.79,
+    "avg_safety": 8.05,
+    "avg_latency": 40.534,
+    "good_rate": 100.0,
+    "hard_fail_rate": 0.0,
+    "weighted_score": 90.803
+  },
+  {
+    "model": "KTO",
+    "prompts": 20,
+    "avg_total": 76.074,
+    "avg_safety": 7.25,
+    "avg_latency": 68.932,
+    "good_rate": 90.0,
+    "hard_fail_rate": 15.0,
+    "weighted_score": 81.702
+  },
+  {
+    "model": "SFT",
+    "prompts": 20,
+    "avg_total": 82.958,
+    "avg_safety": 7.85,
+    "avg_latency": 32.755,
+    "good_rate": 90.0,
+    "hard_fail_rate": 20.0,
+    "weighted_score": 89.371
+  }
+]
