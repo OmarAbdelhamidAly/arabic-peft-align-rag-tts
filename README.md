@@ -105,9 +105,9 @@ The development of this project is structured into three distinct phases, evolvi
 
 | Phase | Description | Read More |
 |:------|:------------|:----------|
-| **Phase 1: The R&D Foundation** | Manual data generation, SFT, parallel alignments, local LLM-as-a-judge evaluation, and standard model serving. Focuses on proving model quality and discovering the best architecture. | [📖 Read Phase 1](docs/PHASE_1_RND.md) |
-| **Phase 2: MLOps Automation** | Transforming the R&D notebooks into a robust Kubeflow Pipeline using Papermill and MLflow. Zero human intervention from dataset to Hugging Face deployment. | [📖 Read Phase 2](docs/PHASE_2_MLOPS.md) |
-| **Phase 3: The Data Flywheel** | Active learning loop. The system monitors live RAG queries, detects weaknesses, generates targeted "hard" datasets, and triggers Phase 2 automatically to self-improve. | [📖 Read Phase 3](docs/PHASE_3_FLYWHEEL.md) |
+| **Phase 1: The R&D Foundation** | Manual data generation, SFT, parallel alignments, local LLM-as-a-judge evaluation, and standard model serving. Focuses on proving model quality and discovering the best architecture. | [📖 Read Phase 1](services/service-medical-llm/docs/PHASE_1_RND.md) |
+| **Phase 2: MLOps Automation** | Transforming the R&D notebooks into a robust Kubeflow Pipeline using Papermill and MLflow. Zero human intervention from dataset to Hugging Face deployment. | [📖 Read Phase 2](services/service-medical-llm/docs/PHASE_2_MLOPS.md) |
+| **Phase 3: The Data Flywheel** | Active learning loop. The system monitors live RAG queries, detects weaknesses, generates targeted "hard" datasets, and triggers Phase 2 automatically to self-improve. | [📖 Read Phase 3](services/service-medical-llm/docs/PHASE_3_FLYWHEEL.md) |
 
 ---
 
