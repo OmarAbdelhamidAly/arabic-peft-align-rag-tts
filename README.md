@@ -27,40 +27,29 @@
 
 ## 🗺️ System Architecture
 
-```
+```text
                     ┌─────────────────────────────────────────┐
                     │              User / Client               │
                     └──────────────────┬──────────────────────┘
                                        │  Arabic question (HTTP)
                     ┌──────────────────▼──────────────────────┐
-                    │           service-rag  :8003             │  ← ONLINE
-                    │     Retrieve → Generate → (TTS)          │
+                    │ 1. service-rag           [Online API]    │
+                    │    Retrieve → Generate → Synthesize      │
                     └──────┬────────────────────┬─────────────┘
                            │                    │
-         ┌─────────────────▼────┐    ┌──────────▼──────────────┐
-         │  service-medical-llm │    │       service-tts        │
-         │   Inference  :8001   │    │         :8002            │  ← ONLINE
-         │  Fine-tuned LLM API  │    │   Arabic TTS API         │
-         │  (OpenAI-compatible) │    │   (XTTS-v2 fine-tuned)   │
-         └──────────────────────┘    └──────────────────────────┘
-                ← ONLINE
-
-         ┌──────────────────────────────────────────────────────┐
-         │          service-medical-llm  [ Training ]           │
-         │   SFT → Parallel (DPO / IPO / KTO / ORPO /          │
-         │                   SimPO / RLOO)                      │
-         │   Eval → Merge → Push to HuggingFace       ✅ DONE  │
-         └──────────────────────────────────────────────────────┘
-
-         ┌──────────────────────────────────────────────────────┐
-         │          service-tts  [ Fine-Tuning ]                │
-         │   Prepare audio → Train XTTS-v2 → Evaluate          │
-         │   Output: xtts_arabic_medical_v1/         🔴 TODO   │
-         └──────────────────────────────────────────────────────┘
+          ┌────────────────▼────────┐  ┌────────▼────────────────┐
+          │ 2. service-medical-llm  │  │ 3. service-tts          │
+          │                         │  │                         │
+          │ [Online Inference API]  │  │ [Online Synthesis API]  │
+          │  Serve 16-bit via vLLM  │  │  Serve XTTS-v2 Voice    │
+          │                         │  │                         │
+          │ [Offline Training]      │  │ [Offline Fine-Tuning]   │
+          │  SFT → Parallel Align   │  │  Prepare → Train → Eval │
+          └─────────────────────────┘  └─────────────────────────┘
 
                     ┌──────────────────────┐
                     │    Qdrant Vector DB   │
-                    │  Arabic Mental Health Docs  │
+                    │  Mental Health Docs   │
                     └──────────────────────┘
 ```
 
@@ -101,13 +90,11 @@ arabic-peft-align-rag-tts/
 
 ## 📊 Service Status
 
-| # | Service | Mode | Status | Next Step |
-|:--|:--------|:-----|:------:|:----------|
-| 1 | `service-medical-llm` — Training | Offline | ✅ Done | Trigger KFP in cluster |
-| 2 | `service-tts` — Fine-tuning | Offline | 🔴 Not started | Research XTTS-v2 training, pick dataset |
-| 3 | `service-medical-llm` — Inference | Online | 🟡 Code ready | Set `MODEL_PATH`, test locally |
-| 4 | `service-tts` — API | Online | 🟡 Skeleton ready | Wire fine-tuned model |
-| 5 | `service-rag` | Online | 🔴 Stub | Implement E5 + Qdrant + inference client |
+| # | Core Service | Modes | Status & Description |
+|:-:|:-------------|:------|:---------------------|
+| 1 | **`service-medical-llm`** | **Offline (Training)** <br> **Online (Inference)** | ✅ **Done** <br> 🟡 **Code ready** <br> _Unified service for fine-tuning via KFP and serving via vLLM._ |
+| 2 | **`service-tts`** | **Offline (Fine-Tuning)** <br> **Online (API)** | 🔴 **Not started** <br> 🟡 **Skeleton ready** <br> _Voice cloning & synthesis using XTTS-v2._ |
+| 3 | **`service-rag`** | **Online (API)** | 🔴 **Stub** <br> _RAG orchestrator using Qdrant and E5._ |
 
 ---
 
