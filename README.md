@@ -99,6 +99,18 @@ arabic-peft-align-rag-tts/
 
 ---
 
+## 📚 Service Documentation
+
+لكل خدمة ملف `README` خاص بها يشرح تفاصيل هيكلتها وكيفية تشغيلها بشكل مستقل:
+
+| Service | Documentation Link |
+|:--------|:-------------------|
+| **`service-medical-llm`** | [`services/service-medical-llm/README.md`](services/service-medical-llm/README.md) |
+| **`service-tts`** | [`services/service-tts/README.md`](services/service-tts/README.md) |
+| **`service-rag`** | [`services/service-rag/README.md`](services/service-rag/README.md) |
+
+---
+
 ## 🔄 End-to-End Pipeline
 
 ```
