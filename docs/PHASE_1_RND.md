@@ -64,5 +64,13 @@ For production serving, the pipeline uses:
 
 ---
 
+## 💻 Hardware Constraints & Engineering Philosophy
+It is critical to note that this entire pipeline was developed and executed on a single **NVIDIA GeForce RTX 3070 Ti Laptop GPU (8GB VRAM)**. 
+Because of this strict hardware limitation, large-scale distributed training on Kubernetes across multiple GPUs was impossible. However, this constraint became the primary driver for our engineering excellence. 
+
+**The Philosophy:** If we can build an end-to-end, highly capable, aligned Arabic Mental Health LLM using a small 3B parameter model and just 8GB of VRAM, imagine the quality and scale achievable with enterprise-grade infrastructure and 70B+ models. The goal of this project isn't to train the world's most powerful AI, but to demonstrate that we can build the world's most robust and automated **AI Infrastructure and Training Pipeline**.
+
+---
+
 ## ⚡ How it Differs from the Other Phases
 **Phase 1 is manual and experimental.** It is about *discovery*. If a notebook fails, a human fixes it. If a hyperparameter needs tuning, a human changes it. It is the necessary chaotic laboratory work required before building a factory. In this phase, the primary metric is **Model Quality**, not speed or automation.

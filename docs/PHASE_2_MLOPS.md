@@ -33,5 +33,13 @@ The pipeline then automatically passes this adapter to the `merge_model` compone
 
 ---
 
+## 💻 Hardware Constraints & Engineering Philosophy
+It is critical to note that this entire pipeline was developed and executed on a single **NVIDIA GeForce RTX 3070 Ti Laptop GPU (8GB VRAM)**. 
+Because of this strict hardware limitation, large-scale distributed training on Kubernetes across multiple GPUs was impossible. However, this constraint became the primary driver for our engineering excellence. 
+
+**The Philosophy:** If we can build an end-to-end, highly capable, aligned Arabic Mental Health LLM using a small 3B parameter model and just 8GB of VRAM, imagine the quality and scale achievable with enterprise-grade infrastructure and 70B+ models. The goal of this project isn't to train the world's most powerful AI, but to demonstrate that we can build the world's most robust and automated **AI Infrastructure and Training Pipeline**.
+
+---
+
 ## ⚡ How it Differs from the Other Phases
 **Phase 2 is highly structured and automated.** It is about *Infrastructure and Reproducibility*. If the pipeline is triggered, no human needs to touch a keyboard until the new model is live in production. It differs from Phase 1 because it sacrifices ad-hoc flexibility for absolute stability. You don't "tweak" things mid-run here; you rely on the system to do exactly what it was programmed to do.
