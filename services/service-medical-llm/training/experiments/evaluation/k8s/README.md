@@ -1,74 +1,119 @@
-# Lightweight Kubernetes Deployment (8 GB RAM)
+# 🚀 Serving the Arabic Medical LLM on Kubernetes
 
-This folder provides a minimal, laptop-friendly Kubernetes deployment for local LLM inference.
+This folder provides Kubernetes manifests to serve your fine-tuned and aligned Arabic Medical LLM via the **vLLM Inference Engine** in two ways:
+1. **Lightweight Deployment (Standard K8s):** Best for simple local setups on low-resource machines.
+2. **KServe InferenceService:** Standard cloud/enterprise deployment using KServe CRDs.
 
-## Scope
+---
 
-- single replica only
-- no autoscaling
-- no service mesh
-- no full Kubeflow stack
+## 🛠️ Prerequisites
 
-This is intentionally small to fit constrained hardware and to demonstrate deployment concepts.
+Before executing the manifests, ensure you have:
+*   **Docker Desktop** (WSL2 backend enabled on Windows).
+*   `kubectl` CLI.
+*   A local Kubernetes cluster like **Kind** or **Minikube**.
+*   (Optional) **KServe Control Plane** installed on your cluster. For KServe setup details, refer to the [KServe Quickstart](https://kserve.github.io/website/master/get_started/).
 
-## Prerequisites
+---
 
-- Docker Desktop (WSL2 backend enabled)
-- `kubectl`
-- one local Kubernetes option:
-  - `kind` (recommended), or
-  - `minikube`
+## 🏗️ Method 1: Lightweight Deployment (Standard K8s)
 
-## Suggested Flow
+This method runs vLLM directly as a standard Kubernetes Deployment and exposes it via a ClusterIP Service.
 
-1. Start local Kubernetes cluster.
-2. Run local inference server container image.
-3. Apply manifests in this directory.
-4. Port-forward and test endpoint.
-5. Run benchmark and post-deploy evaluation scripts.
-
-## kind Quick Start
-
+### 1. Apply Manifests
+Run these commands from the `training` root directory:
 ```powershell
-kind create cluster --name llm-local
-kubectl cluster-info
+kubectl apply -f experiments/evaluation/k8s/configmap.yaml
+kubectl apply -f experiments/evaluation/k8s/deployment.yaml
+kubectl apply -f experiments/evaluation/k8s/service.yaml
 ```
 
-## Apply Manifests
-
+### 2. Verify Pod Status
+Wait until the pod is `Running` and the readiness probe passes:
 ```powershell
-kubectl apply -f model_training/evaluation/k8s/configmap.yaml
-kubectl apply -f model_training/evaluation/k8s/deployment.yaml
-kubectl apply -f model_training/evaluation/k8s/service.yaml
 kubectl get pods -n default -w
 ```
 
-## Access Service
-
+### 3. Port Forwarding
+Expose the service port to your localhost:
 ```powershell
 kubectl port-forward service/llm-inference-service 8001:8001
 ```
 
-Then test:
-
+### 4. Test the OpenAI-compatible Endpoint
+Run this from your terminal:
 ```powershell
-curl http://127.0.0.1:8001/health
+curl http://127.0.0.1:8001/v1/chat/completions `
+  -H "Content-Type: application/json" `
+  -d '{
+    "model": "unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit",
+    "messages": [
+      {"role": "system", "content": "أنت طبيب نفسي خبير."},
+      {"role": "user", "content": "أشعر بالقلق والتوتر الدائم."}
+    ],
+    "temperature": 0.7,
+    "max_tokens": 150
+  }'
 ```
 
-## Notes for vLLM
+---
 
-If you are using vLLM, keep model/context limits small for local RAM safety. Start with:
+## 🏭 Method 2: KServe Deployment (InferenceService)
 
-- reduced max model length
-- reduced max batched tokens
-- single worker/process
+KServe simplifies model lifecycle management, autoscaling, and versioning.
 
-## Cleanup
+### 1. Edit the Model ID
+Before applying the manifest, edit [kserve_inferenceservice.yaml](file:///E:/FineTuning/services/service-medical-llm/training/experiments/evaluation/k8s/kserve_inferenceservice.yaml) and replace `OmarAbdelhamidAly/Arabic-Medical-LLM-Qwen-3B` with your own Hugging Face model repository ID.
 
+### 2. Apply KServe Manifest
 ```powershell
-kubectl delete -f model_training/evaluation/k8s/service.yaml
-kubectl delete -f model_training/evaluation/k8s/deployment.yaml
-kubectl delete -f model_training/evaluation/k8s/configmap.yaml
-kind delete cluster --name llm-local
+kubectl apply -f experiments/evaluation/k8s/kserve_inferenceservice.yaml
 ```
 
+### 3. Track Status
+Verify that the InferenceService URL is generated and the predictor status becomes `Ready`:
+```powershell
+kubectl get inferenceservice arabic-medical-llm
+```
+
+### 4. Port Forwarding & Testing
+Port-forward the KServe ingress gateway (usually Knative ingress-gateway or KServe local gateway):
+```powershell
+# If using KServe local gateway:
+kubectl port-forward -n kserve service/kserve-local-gateway 8080:80
+
+# If using standard port forwarding on the pod directly:
+kubectl port-forward service/arabic-medical-llm-predictor-default 8080:8080
+```
+
+Then send a test request:
+```powershell
+curl http://127.0.0.1:8080/v1/chat/completions `
+  -H "Host: arabic-medical-llm.default.example.com" `
+  -H "Content-Type: application/json" `
+  -d '{
+    "model": "OmarAbdelhamidAly/Arabic-Medical-LLM-Qwen-3B",
+    "messages": [
+      {"role": "system", "content": "أنت طبيب نفسي خبير."},
+      {"role": "user", "content": "أشعر بالقلق والتوتر الدائم."}
+    ],
+    "temperature": 0.7,
+    "max_tokens": 150
+  }'
+```
+
+---
+
+## 🧹 Cleanup
+
+To delete deployments and clean up your cluster:
+
+```powershell
+# For Method 1:
+kubectl delete -f experiments/evaluation/k8s/service.yaml
+kubectl delete -f experiments/evaluation/k8s/deployment.yaml
+kubectl delete -f experiments/evaluation/k8s/configmap.yaml
+
+# For Method 2:
+kubectl delete -f experiments/evaluation/k8s/kserve_inferenceservice.yaml
+```

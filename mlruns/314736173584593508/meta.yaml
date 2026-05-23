@@ -1,0 +1,8 @@
+artifact_location: file:///E:/FineTuning/mlruns/314736173584593508
+creation_time: 1778958523070
+experiment_id: '314736173584593508'
+last_update_time: 1778958523070
+lifecycle_stage: active
+name: Phase1_Model_Comparison
+trace_location: null
+workspace: default

@@ -5,8 +5,9 @@ metadata:
   namespace: default
 data:
   # Keep this small for 8 GB laptop demos.
-  MODEL_ID: "unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit"
+  MODEL_ID: "Qwen/Qwen2.5-0.5B-Instruct"
   SERVER_HOST: "0.0.0.0"
   SERVER_PORT: "8001"
-  MAX_MODEL_LEN: "1024"
+  MAX_MODEL_LEN: "512"
   MAX_NUM_SEQS: "1"
+  VLLM_TARGET_DEVICE: "cpu"

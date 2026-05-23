@@ -1,0 +1,14 @@
+artifact_uri: file:///E:/FineTuning/mlruns/314736173584593508/c98dd6abb5f440098ba36ed3f8ffc6df/artifacts
+end_time: 1778958524233
+entry_point_name: ''
+experiment_id: '314736173584593508'
+lifecycle_stage: active
+run_id: c98dd6abb5f440098ba36ed3f8ffc6df
+run_name: KTO
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778958524194
+status: 3
+tags: []
+user_id: Lenovo

@@ -1,121 +1,176 @@
-<div align="center">
+# 🧠 Arabic Medical LLM: Training & Post-Training Alignment Pipeline
 
-# 🧠 Service Medical LLM: Training Pipeline
-
-### SFT · Parallel Alignment · Papermill · MLflow · Unsloth
-
-<br/>
-
-> **This module handles the end-to-end Offline Training pipeline for the Arabic Mental Health LLM.**  
-> It automates the transition from raw datasets to a fully fine-tuned, aligned, and merged 16-bit model ready for production serving via vLLM.
-
-</div>
+This directory contains the complete end-to-end **Offline Training Pipeline** for the Arabic Medical and Mental Health LLM. It manages the entire lifecycle of model creation—from synthetic data generation and Supervised Fine-Tuning (SFT) to parallel preference alignment, evaluation, automated model selection, merging, and deployment.
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ Technical Architecture & Workflow
 
-The training pipeline is fully orchestrated using **Kubeflow Pipelines (KFP)**. Instead of manually running Python scripts, the pipeline uses **Papermill** to execute Jupyter Notebooks directly inside isolated Docker containers. This ensures exact reproducibility while maintaining the interactive development experience of Notebooks.
+The architecture is built for **reproducibility**, **scalability**, and **resource efficiency** (optimized to run on consumer GPUs like the RTX 3070 Ti / 3060).
 
-### The Pipeline Flow (DAG)
-
-```text
-                  [ 1. Validate Dataset ]
-                             │
-                             ▼
-               [ 2. Supervised Fine-Tuning (SFT) ]
-                             │
-      ┌────────┬────────┬────┴───┬────────┬────────┐
-      ▼        ▼        ▼        ▼        ▼        ▼
-   [DPO]    [IPO]    [KTO]    [ORPO]   [SimPO]   [RLOO]
-      │        │        │        │        │        │
-      └────────┴────────┴────┬───┴────────┴────────┘
-                             ▼
-                 [ 3. Select Best Model ]
-                       (via MLflow)
-                             │
-                             ▼
-                [ 4. Merge to 16-bit Base ]
-                             │
-                             ▼
-                 [ 5. Push to HuggingFace ]
+```
+                              [ 1. Raw Data Generation ]
+                                         │
+                                         ▼
+                            [ 2. ChatML Dataset Prep ]
+                                         │
+                                         ▼
+                         [ 3. Validate Dataset Component ]
+                                         │
+                                         ▼
+                       [ 4. Supervised Fine-Tuning (SFT) ]
+                         (Qwen2.5-3B-Instruct + 4-bit LoRA)
+                                         │
+                 ┌────────┬────────┬─────┴─────┬────────┬────────┐
+                 ▼        ▼        ▼           ▼        ▼        ▼
+              [DPO]    [IPO]    [KTO]       [ORPO]   [SimPO]   [RLOO]
+                 │        │        │           │        │        │
+                 └────────┴────────┴─────┬─────┴────────┴────────┘
+                                         ▼
+                             [ 5. Select Best Model ]
+                               (Reward Margin Query)
+                                         │
+                                         ▼
+                            [ 6. Merge Model (16-bit) ]
+                                         │
+                                         ▼
+                             [ 7. Push to HuggingFace ]
 ```
 
+### 1. Kubeflow & Papermill Integration
+Rather than refactoring interactive Jupyter Notebooks into monolithic python scripts, the pipeline uses **Papermill** inside **Kubeflow Pipelines (KFP)**. 
+- **Interactive Development:** Notebooks are used for exploration and prototyping.
+- **Production Execution:** Kubeflow executes the notebooks headlessly inside Docker containers, injecting parameters (like `DATASET_PATH`, `LEARNING_RATE`, `BATCH_SIZE`) dynamically into the top-level cell tagged with `"parameters"`.
+- **Artifact Preservation:** The executed notebooks (containing output charts, logs, and stats) are saved as pipeline artifacts for easy inspection.
+
+### 2. Supervised Fine-Tuning (SFT)
+- **Base Model:** `Qwen/Qwen2.5-3B-Instruct` (bnb 4-bit quantized).
+- **Optimization Framework:** `Unsloth` (enables 2x faster training and fits inside 8GB VRAM).
+- **Format:** `ChatML` template (`<|im_start|>system...`, `<|im_start|>user...`, `<|im_start|>assistant...`).
+
+### 3. Parallel Post-Training Preference Alignment
+To steer the model towards empathetic, medically accurate, and safe Arabic responses, we run **6 preference alignment algorithms in parallel**:
+1. **DPO (Direct Preference Optimization):** Directly optimizes the policy model using pairwise preference data without a separate reward model.
+2. **IPO (Identity Preference Optimization):** Adds a regularizer to DPO to prevent the model from degenerating or overfitting.
+3. **KTO (Kahneman-Tversky Optimization):** Works on unpaired data (binary thumbs up/down) using utility theory.
+4. **ORPO (Odds Ratio Preference Optimization):** Integrates preference alignment directly into the SFT loss, eliminating the need for a two-phase SFT -> DPO process.
+5. **SimPO (Simple Preference Optimization):** A reference-free algorithm that optimizes the length-normalized margin between chosen and rejected responses directly.
+6. **RLOO (Reinforcement Learning with Leave-One-Out):** An on-policy RL method that optimizes generated completions using a reward model.
+
 ---
 
-## 📂 Directory Structure
+## 📂 Detailed Directory Structure
 
 ```text
 training/
-├── kubeflow/
-│   └── pipeline.py                 # The main KFP DAG definition
-├── experiments/
-│   ├── 01_sft/                     # Supervised Fine-Tuning Notebooks
-│   ├── 02_post_training/           # 6 Parallel Alignment Notebooks
-│   ├── data_pipeline/              # Data generation (OpenRouter/GPT-4o)
-│   ├── evaluation/                 # Benchmark metrics and LLM-as-judge
-│   ├── select_and_merge.py         # Standalone merging script
-│   └── merged_model_16bit/         # Output directory for the final model
-├── data/                           # Curated preference datasets (JSON)
-├── Dockerfile                      # Builds the `arabic-medical-llm/trainer` image
-└── training_pipeline.yaml          # The compiled KFP pipeline ready for deployment
+├── kubeflow/                     # Kubeflow pipeline orchestrator
+│   ├── pipeline.py               # KFP pipeline definition & component definitions
+│   ├── test_pipeline.py          # Quick pipeline validation test
+│   ├── test_sft.py               # Local execution harness for the SFT component
+│   └── validate_pipeline.py      # Dry-run checklist verifying files, paths, and env config
+├── experiments/                  # Research, notebooks, and model configs
+│   ├── data_pipeline/            # Generates synthetic Arabic datasets
+│   │   ├── 01_data_generator.ipynb           # Base SFT data generator
+│   │   ├── 02_alignment_data_generator.ipynb # DPO/Preference generator
+│   │   ├── 03_alignment_data_generator_hard.ipynb # Hard preference mining
+│   │   └── processed_data/                   # Output folder for generated datasets
+│   ├── 01_sft/                   # Supervised Fine-Tuning folder
+│   │   ├── train_sft_optimized.ipynb         # Main fine-tuning notebook
+│   │   ├── OPTIMIZATION_REPORT.md            # Hardware optimization log
+│   │   └── QUICK_REFERENCE.md                # Quick commands cheatsheet
+│   ├── 02_post_training/         # Preference alignment folder
+│   │   ├── train_dpo.ipynb                   # DPO notebook
+│   │   ├── train_ipo.ipynb                   # IPO notebook
+│   │   ├── train_kto.ipynb                   # KTO notebook
+│   │   ├── train_orpo.ipynb                  # ORPO notebook
+│   │   ├── train_simpo.ipynb                 # SimPO notebook
+│   │   └── train_rloo_part1_reward_model.ipynb / train_rloo_part2_policy.ipynb
+│   ├── evaluation/               # Model comparison, judge-LLM & serving
+│   │   ├── 01_compare_5_models.ipynb         # Evaluation workbook
+│   │   ├── local_serving/                    # Inference benchmark scripts
+│   │   └── k8s/                              # Kubernetes manifests for vLLM deployment
+│   ├── select_and_merge.py       # Standalone script to select and merge LoRA adapters
+│   ├── merge_winner.py           # Helper script to load PEFT adapter and merge to 16bit
+│   └── upload_to_huggingface.py  # Standalone hub publisher
+├── data/                         # Hard links/copies of alignment datasets (JSON)
+├── outputs/                      # Local testing output (adapters, logs, executed notebooks)
+├── requirements.txt              # Standardized python dependencies
+├── Dockerfile                    # Container definition for pipeline components
+└── training_pipeline.yaml        # Compiled Kubeflow pipeline schema (auto-generated)
 ```
 
 ---
 
-## 🔬 Core Components
+## ⚙️ Core Parameters & Environment Setup
 
-### 1. Data Generation (`data_pipeline/`)
-We use powerful teacher models (like GPT-4o via OpenRouter) to generate highly specialized Arabic Mental Health dialogues. The pipeline generates both:
-- **SFT Data:** Standard User/Assistant instructional dialogues.
-- **Preference Data:** Chosen/Rejected pairs for alignment algorithms.
+### 1. Hardware Requirements & Optimization
+- **Recommended GPU:** NVIDIA RTX 3070 Ti Laptop / RTX 3060 (minimum 8GB VRAM).
+- **Quantization:** bitsandbytes 4-bit Double Quantization (`load_in_4bit=True`).
+- **Optimizer:** `adamw_8bit` (reduces memory consumption by ~60% compared to standard AdamW).
+- **Gradient Checkpointing:** Configured via `unsloth` (`use_gradient_checkpointing="unsloth"`) to reduce activation memory.
 
-### 2. Supervised Fine-Tuning (SFT)
-- **Framework:** `Unsloth` (for 2x faster, memory-efficient LoRA training).
-- **Base Model:** `Qwen2.5-3B-Instruct`.
-- **Output:** An SFT LoRA Adapter (`qwen_mental_health_arabic_lora`).
+### 2. Local Environment Setup
+To run scripts locally on Windows, set up a dedicated Conda environment:
 
-### 3. Parallel Post-Training Alignment
-To ensure the highest quality model, we don't guess which alignment algorithm works best. We run **6 state-of-the-art algorithms simultaneously** on top of the SFT adapter:
-1. **DPO:** Direct Preference Optimization.
-2. **IPO:** Identity Preference Optimization.
-3. **KTO:** Kahneman-Tversky Optimization (Unpaired feedback).
-4. **ORPO:** Odds Ratio Preference Optimization.
-5. **SimPO:** Simple Preference Optimization (Reference-free).
-6. **RLOO:** Reinforcement Learning with Leave-One-Out.
-
-### 4. MLflow Tracking & Selection
-Every alignment run logs its Hyperparameters, Training Loss, and **Reward Margins** directly to a centralized MLflow server. The `select_best_model` component queries MLflow, compares the reward margins, and automatically selects the winning adapter (e.g., SimPO).
-
-### 5. Merging and Deployment
-The winning adapter is merged into the base model at `16-bit` precision (dequantized). Finally, the `push_to_huggingface` component securely uploads the production-ready weights to the HuggingFace Hub, making it immediately available for the Online Inference Service.
-
----
-
-## 🛠️ How to Run
-
-### Local Compilation
-If you modify `pipeline.py`, you must recompile it into YAML:
-```bash
+```cmd
+# Create environment
+conda create -n unsloth_env python=3.10 -y
 conda activate unsloth_env
-python kubeflow/pipeline.py --compile --output ../training_pipeline.yaml
+
+# Install PyTorch via Conda (Prevents DLL load errors on Windows)
+conda install pytorch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 pytorch-cuda=12.1 -c pytorch -c nvidia -y
+
+# Install Accelerators (Must be done without dependencies to prevent torch downgrades)
+pip install xformers==0.0.27.post2 --index-url https://download.pytorch.org/whl/cu121 --no-deps
+
+# Install main requirements
+pip install -r requirements.txt
+
+# Install specific tokenizers version required by Unsloth
+pip install "tokenizers==0.21.4" --no-deps
 ```
 
-### Running on Kubeflow
-Once compiled, you can submit the pipeline to your Kubernetes cluster:
-```bash
-kfp run create \
-  --experiment-name arabic-mental-health-llm \
-  --pipeline-package-path ../training_pipeline.yaml
+---
+
+## 🏃 Execution Guide
+
+### 1. Local Validation (Dry Run)
+Before running training or compiling the pipeline, check your local setup and inputs using the validation utility:
+
+```cmd
+# Set workspace path (required for local path resolving)
+set WORKSPACE_PATH=E:\FineTuning\services\service-medical-llm\training
+
+# Run the validation checker
+python kubeflow/validate_pipeline.py
 ```
 
-### Updating the Docker Image
-If you add new pip packages to the Notebooks, update the `Dockerfile` and rebuild the runner image:
-```bash
+### 2. Test Fine-Tuning (SFT) Component
+To run a fast test of the SFT training loop locally through Papermill:
+
+```cmd
+cd kubeflow
+python test_sft.py
+```
+*Outputs will be saved in `outputs/test_sft/`.*
+
+### 3. Compiling the Pipeline for Kubeflow
+If you modify `kubeflow/pipeline.py`, compile the DAG to YAML to upload it to the Kubeflow cluster:
+
+```cmd
+python kubeflow/pipeline.py --compile --output training_pipeline.yaml
+```
+
+### 4. Rebuilding the Trainer Docker Image
+When updating training code or adding requirements, rebuild the container:
+
+```cmd
 docker build -t arabic-medical-llm/trainer:latest .
 ```
 
 ---
 
-## 🗒️ Why Papermill?
-By using `papermill`, this architecture eliminates the infamous "Notebook-to-Production gap". You can write and test your experiments interactively in Jupyter, and Kubeflow will execute those exact same Notebooks in production by dynamically injecting parameters (like `learning_rate` or `dataset_path`) into the top cell.
+## 📊 Metrics & Experiment Tracking
+All notebooks are configured to report training losses and evaluations to **MLflow**.
+- **Tracking URI:** `http://localhost:5000` (configurable via `MLFLOW_TRACKING_URI`).
+- **Best Model Selection:** The pipeline queries the MLflow client to extract the model with the highest `reward_margin` (SimPO or DPO), selects it, and executes the merge.

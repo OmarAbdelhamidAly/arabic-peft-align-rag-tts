@@ -1,0 +1,14 @@
+artifact_uri: file:///E:/FineTuning/mlruns/314736173584593508/21ddd15aa1ab40f9ac8e3067f9663a99/artifacts
+end_time: 1778958524130
+entry_point_name: ''
+experiment_id: '314736173584593508'
+lifecycle_stage: active
+run_id: 21ddd15aa1ab40f9ac8e3067f9663a99
+run_name: DPO
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778958524028
+status: 3
+tags: []
+user_id: Lenovo

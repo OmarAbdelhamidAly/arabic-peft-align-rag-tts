@@ -70,4 +70,10 @@ Thumbs.db
 A I _ D r i v e n _ P r o t e i n _ M o d e l i n g _ R e p o r t . t e x  
 
 # MLflow Tracking
-mlruns/
+mlruns/mlflow.db 
+services/service-medical-llm/training/outputs/ 
+services/service-medical-llm/training/kubeflow/checkpoints/ 
+mlruns/ 
+mlflow.db 
+services/service-medical-llm/training/outputs/ 
+services/service-medical-llm/training/kubeflow/checkpoints/ 

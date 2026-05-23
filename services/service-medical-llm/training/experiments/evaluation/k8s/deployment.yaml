@@ -20,7 +20,7 @@ spec:
           image: vllm/vllm-openai:latest
           imagePullPolicy: IfNotPresent
           command:
-            - python
+            - python3
             - -m
             - vllm.entrypoints.openai.api_server
           args:
@@ -34,6 +34,8 @@ spec:
             - $(MAX_MODEL_LEN)
             - --max-num-seqs
             - $(MAX_NUM_SEQS)
+            - --device
+            - cpu
           envFrom:
             - configMapRef:
                 name: llm-inference-config
@@ -56,7 +58,7 @@ spec:
           resources:
             requests:
               cpu: "500m"
-              memory: "2Gi"
+              memory: "4Gi"
             limits:
               cpu: "1"
-              memory: "4Gi"
+              memory: "8Gi"

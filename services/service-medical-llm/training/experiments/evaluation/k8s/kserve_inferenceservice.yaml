@@ -1,0 +1,63 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: arabic-medical-llm
+  namespace: default
+  labels:
+    app: arabic-medical-llm
+spec:
+  predictor:
+    # ── Option 1: Custom Container (vLLM Engine) ─────────────────────────────
+    # Highly recommended for local/laptop clusters since we can pass specific
+    # resource constraints, cpu-fallback flags, and custom vLLM args.
+    containers:
+      - name: kserve-container
+        image: vllm/vllm-openai:latest
+        imagePullPolicy: IfNotPresent
+        command:
+          - python3
+          - -m
+          - vllm.entrypoints.openai.api_server
+        args:
+          # HF Model Repo ID (Replace with your Hugging Face username/repo)
+          - --model
+          - "OmarAbdelhamidAly/Arabic-Medical-LLM-Qwen-3B"
+          - --host
+          - "0.0.0.0"
+          - --port
+          - "8080"
+          # Memory constraints for 8GB local environments
+          - --max-model-len
+          - "1024"
+          - --max-num-seqs
+          - "1"
+          # Device Configuration: 
+          # - Comment out '--device cpu' if running with WSL2 Nvidia GPU Passthrough
+          # - Keep '--device cpu' for CPU-only testing on laptop minikube/kind clusters
+          - --device
+          - "cpu"
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        # Liveness & Readiness checks specifically configured for vLLM startup times
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 45
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 90
+          periodSeconds: 15
+        resources:
+          requests:
+            cpu: "2"
+            memory: "4Gi"
+          limits:
+            cpu: "4"
+            memory: "8Gi"
+            # Un-comment below to enable GPU request if your Kubernetes cluster supports GPU scheduling
+            # nvidia.com/gpu: "1"

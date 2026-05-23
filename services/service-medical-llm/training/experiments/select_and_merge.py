@@ -23,7 +23,7 @@ from pathlib import Path
 # ─────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent.resolve()
 BASE_MODEL_ID = "unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit"
-ROOT_DIR = BASE_DIR.parent
+ROOT_DIR = BASE_DIR.parent.parent.parent.parent  # Go up to FineTuning root
 
 def load_dotenv(dotenv_path: Path):
     if not dotenv_path.exists():
@@ -40,17 +40,17 @@ def load_dotenv(dotenv_path: Path):
 
 load_dotenv(ROOT_DIR / ".env")
 
-# المسارات (نستخدم مسارات مطلقة للتأكد)
-PROMPTS_FILE = Path(r"E:\FineTuning\data\alignment\01_prompts.json")
+# المسارات (محدثة للـ structure الجديد)
+PROMPTS_FILE = ROOT_DIR / "services" / "service-medical-llm" / "training" / "data" / "alignment" / "01_prompts.json"
 ADAPTERS = {
-    "SFT":   str(BASE_DIR / "01_sft"           / "qwen_medical_arabic_lora"),
-    "DPO":   str(BASE_DIR / "02_post_training"  / "qwen_medical_arabic_dpo"),
-    "IPO":   str(BASE_DIR / "02_post_training"  / "qwen_medical_arabic_ipo"),
-    "KTO":   str(BASE_DIR / "02_post_training"  / "qwen_medical_arabic_kto"),
-    "SimPO": str(BASE_DIR / "02_post_training"  / "qwen_medical_arabic_simpo"),
+    "SFT":   str(BASE_DIR / "experiments" / "01_sft"           / "qwen_medical_arabic_lora"),
+    "DPO":   str(BASE_DIR / "experiments" / "02_post_training"  / "qwen_medical_arabic_dpo"),
+    "IPO":   str(BASE_DIR / "experiments" / "02_post_training"  / "qwen_medical_arabic_ipo"),
+    "KTO":   str(BASE_DIR / "experiments" / "02_post_training"  / "qwen_medical_arabic_kto"),
+    "SimPO": str(BASE_DIR / "experiments" / "02_post_training"  / "qwen_medical_arabic_simpo"),
 }
 
-OUTPUT_DIR = BASE_DIR / "merged_model"
+OUTPUT_DIR = BASE_DIR / "merged_model_16bit"
 
 # OpenRouter Config (load from environment)
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()

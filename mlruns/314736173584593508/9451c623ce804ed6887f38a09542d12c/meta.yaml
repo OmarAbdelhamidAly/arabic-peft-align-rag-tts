@@ -1,0 +1,14 @@
+artifact_uri: file:///E:/FineTuning/mlruns/314736173584593508/9451c623ce804ed6887f38a09542d12c/artifacts
+end_time: 1778958524337
+entry_point_name: ''
+experiment_id: '314736173584593508'
+lifecycle_stage: active
+run_id: 9451c623ce804ed6887f38a09542d12c
+run_name: SimPO
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778958524291
+status: 3
+tags: []
+user_id: Lenovo

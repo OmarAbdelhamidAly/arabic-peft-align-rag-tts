@@ -103,11 +103,54 @@ arabic-peft-align-rag-tts/
 
 The development of this project is structured into three distinct phases, evolving from manual experimentation to a fully autonomous AI system. For a deep dive into the engineering mindset and "boring details" of each phase, read the dedicated documentation below:
 
-| Phase | Description | Read More |
-|:------|:------------|:----------|
-| **Phase 1: The R&D Foundation** | Manual data generation, SFT, parallel alignments, local LLM-as-a-judge evaluation, and standard model serving. Focuses on proving model quality and discovering the best architecture. | [📖 Read Phase 1](services/service-medical-llm/docs/PHASE_1_RND.md) |
-| **Phase 2: MLOps Automation** | Transforming the R&D notebooks into a robust Kubeflow Pipeline using Papermill and MLflow. Zero human intervention from dataset to Hugging Face deployment. | [📖 Read Phase 2](services/service-medical-llm/docs/PHASE_2_MLOPS.md) |
-| **Phase 3: The Data Flywheel** | Active learning loop. The system monitors live RAG queries, detects weaknesses, generates targeted "hard" datasets, and triggers Phase 2 automatically to self-improve. | [📖 Read Phase 3](services/service-medical-llm/docs/PHASE_3_FLYWHEEL.md) |
+| Phase | Description | Status | Read More |
+|:------|:------------|:-------|:----------|
+| **Phase 1: The R&D Foundation** | Manual data generation, SFT, parallel alignments, local LLM-as-a-judge evaluation, and standard model serving. Focuses on proving model quality and discovering the best architecture. | ✅ **Completed** | [📖 Read Phase 1](services/service-medical-llm/docs/PHASE_1_RND.md) |
+| **Phase 2: MLOps Automation** | Transforming the R&D notebooks into a robust Kubeflow Pipeline using Papermill and MLflow. Zero human intervention from dataset to Hugging Face deployment. | 🟡 **Ready** | [📖 Read Phase 2](services/service-medical-llm/docs/PHASE_2_MLOPS.md) |
+| **Phase 3: The Data Flywheel** | Active learning loop. The system monitors live RAG queries, detects weaknesses, generates targeted "hard" datasets, and triggers Phase 2 automatically to self-improve. | 🔴 **Not Started** | [📖 Read Phase 3](services/service-medical-llm/docs/PHASE_3_FLYWHEEL.md) |
+
+---
+
+## 🏆 Phase 1: Completion Summary
+
+### Model Achievements
+
+**Winner Model:** 🥇 **SimPO (Simple Preference Optimization)**
+- **Final Weighted Score:** 95.914
+- **Good Rate:** 100%
+- **Hard Fail Rate:** 0% (0 safety violations)
+- **Base Model:** Qwen2.5-3B-Instruct (4-bit quantized)
+- **Hardware:** NVIDIA GeForce RTX 3070 Ti (8GB VRAM)
+
+**HuggingFace Model:** [`OmarAbdelhamid/arabic-medical-qwen2-simpo`](https://huggingface.co/OmarAbdelhamid/arabic-medical-qwen2-simpo)
+
+### Training Pipeline
+
+1. **Data Generation:** 300 scenarios across 10 psychological categories × 6 user personas
+2. **SFT Training:** Qwen2.5-3B with Unsloth + LoRA (4-bit quantization)
+3. **6-Way Alignment:** DPO, IPO, KTO, ORPO, SimPO, RLOO (executed sequentially in Phase 1)
+4. **Evaluation:** LLM-as-a-judge (Claude-3-Haiku) + Rule-based safety checks
+5. **Selection:** Weighted score formula prioritizing safety and empathy
+6. **Merging:** Dequantized to 16-bit standalone model
+7. **Deployment:** K8s manifests + vLLM + KServe ready
+
+### Key Metrics
+
+| Metric | Value |
+|:-------|:------|
+| **Total Scenarios** | 300 |
+| **User Personas** | 6 (Vulnerable, Abusive, Manipulative, Trolling, Emergency, Boundary-Testing) |
+| **Psychological Categories** | 10 (Depression, Trauma, Crisis/Suicidal Thoughts, etc.) |
+| **Alignment Methods Tested** | 6 |
+| **Training Duration (Phase 1)** | ~24 hours (sequential) |
+| **Training Duration (Phase 2)** | ~4 hours (parallel) |
+| **VRAM Usage** | 8GB (4-bit quantization) |
+
+### Engineering Philosophy
+
+> **If we can build an end-to-end, highly capable, aligned Arabic Mental Health LLM using a small 3B parameter model and just 8GB of VRAM, imagine the quality and scale achievable with enterprise-grade infrastructure and 70B+ models.**
+
+The goal of this project isn't to train the world's most powerful AI, but to demonstrate that we can build the world's most robust and automated **AI Infrastructure and Training Pipeline**.
 
 ---
 
