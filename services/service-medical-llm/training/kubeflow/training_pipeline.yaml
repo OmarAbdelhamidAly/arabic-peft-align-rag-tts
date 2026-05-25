@@ -1,0 +1,1308 @@
+# PIPELINE DEFINITION
+# Name: arabic-medical-llm-training-papermill
+# Description: E2E Pipeline: SFT -> Parallel Alignments -> Select Best -> Merge -> Push to HF
+# Inputs:
+#    align_max_steps: int [Default: 10.0]
+#    alignment_output: str [Default: '/outputs/alignments']
+#    base_model: str [Default: 'unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit']
+#    dataset_path: str [Default: '/data/raw/alignment']
+#    hf_repo_id: str [Default: 'YourUsername/Arabic-Medical-LLM-Qwen-3B']
+#    hf_token: str [Default: 'YOUR_HF_TOKEN']
+#    merged_output_dir: str [Default: '/outputs/merged_model_16bit']
+#    sft_max_steps: int [Default: 100.0]
+#    sft_output_dir: str [Default: '/outputs/sft_adapter']
+# Outputs:
+#    run-alignment-2-metrics: system.Metrics
+#    run-alignment-3-metrics: system.Metrics
+#    run-alignment-4-metrics: system.Metrics
+#    run-alignment-5-metrics: system.Metrics
+#    run-alignment-6-metrics: system.Metrics
+#    run-alignment-metrics: system.Metrics
+#    run-sft-metrics: system.Metrics
+components:
+  comp-merge-model:
+    executorLabel: exec-merge-model
+    inputDefinitions:
+      parameters:
+        adapter_path:
+          parameterType: STRING
+        base_model:
+          defaultValue: unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit
+          isOptional: true
+          parameterType: STRING
+        output_dir:
+          parameterType: STRING
+        save_method:
+          defaultValue: merged_16bit
+          isOptional: true
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-push-to-huggingface:
+    executorLabel: exec-push-to-huggingface
+    inputDefinitions:
+      parameters:
+        hf_token:
+          parameterType: STRING
+        merged_model_path:
+          parameterType: STRING
+        repo_id:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment:
+    executorLabel: exec-run-alignment
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        learning_rate:
+          defaultValue: 5.0e-05
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        max_steps:
+          defaultValue: 10.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        method:
+          parameterType: STRING
+        num_epochs:
+          defaultValue: 3.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-2:
+    executorLabel: exec-run-alignment-2
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        learning_rate:
+          defaultValue: 5.0e-05
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        max_steps:
+          defaultValue: 10.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        method:
+          parameterType: STRING
+        num_epochs:
+          defaultValue: 3.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-3:
+    executorLabel: exec-run-alignment-3
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        learning_rate:
+          defaultValue: 5.0e-05
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        max_steps:
+          defaultValue: 10.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        method:
+          parameterType: STRING
+        num_epochs:
+          defaultValue: 3.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-4:
+    executorLabel: exec-run-alignment-4
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        learning_rate:
+          defaultValue: 5.0e-05
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        max_steps:
+          defaultValue: 10.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        method:
+          parameterType: STRING
+        num_epochs:
+          defaultValue: 3.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-5:
+    executorLabel: exec-run-alignment-5
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        learning_rate:
+          defaultValue: 5.0e-05
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        max_steps:
+          defaultValue: 10.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        method:
+          parameterType: STRING
+        num_epochs:
+          defaultValue: 3.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-alignment-6:
+    executorLabel: exec-run-alignment-6
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        learning_rate:
+          defaultValue: 5.0e-05
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        max_steps:
+          defaultValue: 10.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        method:
+          parameterType: STRING
+        num_epochs:
+          defaultValue: 3.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        output_dir:
+          parameterType: STRING
+        sft_adapter_path:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-run-sft:
+    executorLabel: exec-run-sft
+    inputDefinitions:
+      parameters:
+        base_model:
+          defaultValue: unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit
+          isOptional: true
+          parameterType: STRING
+        dataset_path:
+          parameterType: STRING
+        grad_accumulation:
+          defaultValue: 8.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        learning_rate:
+          defaultValue: 0.0002
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        max_steps:
+          defaultValue: 100.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        num_epochs:
+          defaultValue: 5.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        output_dir:
+          parameterType: STRING
+        per_device_batch:
+          defaultValue: 8.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-select-best-model:
+    executorLabel: exec-select-best-model
+    inputDefinitions:
+      parameters:
+        dpo_path:
+          parameterType: STRING
+        ipo_path:
+          parameterType: STRING
+        kto_path:
+          parameterType: STRING
+        orpo_path:
+          parameterType: STRING
+        rloo_path:
+          parameterType: STRING
+        simpo_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-validate-dataset:
+    executorLabel: exec-validate-dataset
+    inputDefinitions:
+      parameters:
+        dataset_path:
+          parameterType: STRING
+        expected_min_rows:
+          defaultValue: 500.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-merge-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - merge_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'peft' 'transformers'\
+          \ 'accelerate' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef merge_model(\n    adapter_path: str,\n    output_dir:   str,\n\
+          \    base_model:   str = \"unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit\"\
+          ,\n    save_method:  str = \"merged_16bit\",\n) -> str:\n    import os\n\
+          \n    if not adapter_path or not os.path.exists(adapter_path):\n       \
+          \ raise ValueError(f\"[merge_model] Invalid adapter path: {adapter_path}\"\
+          )\n\n    os.makedirs(output_dir, exist_ok=True)\n    print(f\"[merge_model]\
+          \ Merging {adapter_path} \u2192 {output_dir}\")\n\n    try:\n        from\
+          \ unsloth import FastLanguageModel\n        from peft import PeftModel\n\
+          \n        model, tokenizer = FastLanguageModel.from_pretrained(\n      \
+          \      model_name=base_model,\n            max_seq_length=4096,\n      \
+          \      dtype=None,\n            load_in_4bit=True,\n        )\n        model\
+          \ = PeftModel.from_pretrained(model, adapter_path)\n        model = model.merge_and_unload()\n\
+          \        model.save_pretrained(output_dir, safe_serialization=True)\n  \
+          \      tokenizer.save_pretrained(output_dir)\n        print(f\"[merge_model]\
+          \ Saved merged model \u2192 {output_dir}\")\n\n    except Exception as exc:\n\
+          \        print(f\"[merge_model] Merge failed: {exc}\")\n        # Write\
+          \ a sentinel so the pipeline can continue\n        with open(os.path.join(output_dir,\
+          \ \"merge_failed.txt\"), \"w\") as f:\n            f.write(str(exc))\n\n\
+          \    return output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-push-to-huggingface:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - push_to_huggingface
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'huggingface_hub'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef push_to_huggingface(\n    merged_model_path: str,\n    repo_id:\
+          \           str,\n    hf_token:          str,\n) -> str:\n    from huggingface_hub\
+          \ import HfApi\n\n    if not hf_token or hf_token == \"YOUR_HF_TOKEN\":\n\
+          \        print(\"[push_to_huggingface] No valid HF token \u2014 skipping.\"\
+          )\n        return \"skipped\"\n\n    api = HfApi(token=hf_token)\n    try:\n\
+          \        api.create_repo(repo_id=repo_id, exist_ok=True)\n        api.upload_folder(\n\
+          \            folder_path=merged_model_path,\n            repo_id=repo_id,\n\
+          \            repo_type=\"model\",\n        )\n        url = f\"https://huggingface.co/{repo_id}\"\
+          \n        print(f\"[push_to_huggingface] Pushed \u2192 {url}\")\n      \
+          \  return url\n    except Exception as exc:\n        print(f\"[push_to_huggingface]\
+          \ Failed: {exc}\")\n        return \"failed\"\n\n"
+        image: pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel
+    exec-run-alignment:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n   \
+          \ num_epochs:       int   = 3,\n    learning_rate:    float = 5e-5,\n  \
+          \  max_steps:         int   = 10,\n    metrics:          Output[Metrics]\
+          \ = None,\n) -> str:\n    import os, subprocess\n    import mlflow\n\n \
+          \   workspace         = os.environ.get(\"WORKSPACE_PATH\", \"/workspace\"\
+          )\n    method_output_dir = os.path.join(output_dir, method)\n    os.makedirs(method_output_dir,\
+          \ exist_ok=True)\n\n    # RLOO has a two-part notebook; we run part-1 (reward\
+          \ model) in automated pipelines\n    if method == \"rloo\":\n        notebook_in\
+          \ = os.path.join(\n            workspace, \"experiments\", \"02_post_training\"\
+          ,\n            \"train_rloo_part1_reward_model.ipynb\",\n        )\n   \
+          \ else:\n        notebook_in = os.path.join(\n            workspace, \"\
+          experiments\", \"02_post_training\",\n            f\"train_{method}.ipynb\"\
+          ,\n        )\n\n    notebook_out = os.path.join(method_output_dir, f\"train_{method}_executed.ipynb\"\
+          )\n\n    mlflow.set_tracking_uri(os.environ.get(\"MLFLOW_TRACKING_URI\"\
+          , \"http://localhost:5000\"))\n    mlflow.set_experiment(\"arabic-medical-alignment\"\
+          )\n\n    with mlflow.start_run(run_name=method):\n        mlflow.log_params({\n\
+          \            \"method\":  method,\n            \"epochs\":  num_epochs,\n\
+          \            \"lr\":      learning_rate,\n        })\n\n        cmd = [\n\
+          \            \"papermill\", notebook_in, notebook_out,\n            \"-p\"\
+          , \"SFT_ADAPTER_PATH\", sft_adapter_path,\n            \"-p\", \"DATASET_PATH\"\
+          ,     dataset_path,\n            \"-p\", \"OUTPUT_DIR\",       method_output_dir,\n\
+          \            \"-p\", \"NUM_EPOCHS\",       str(num_epochs),\n          \
+          \  \"-p\", \"LEARNING_RATE\",    str(learning_rate),\n            \"-p\"\
+          , \"MAX_STEPS\",        str(max_steps),\n        ]\n        print(f\"[run_alignment:{method}]\
+          \ Running: {' '.join(cmd)}\")\n        result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n\n        if result.returncode != 0:\n            print(f\"\
+          [run_alignment:{method}] Warning \u2014 failed:\\n{result.stderr}\")\n \
+          \           return \"\"   # Non-fatal: other methods may still succeed\n\
+          \n        # Parse reward_margin and log it\n        for line in result.stdout.splitlines():\n\
+          \            if \"reward_margin\" in line.lower():\n                try:\n\
+          \                    margin = float(line.split(\":\")[-1].strip())\n   \
+          \                 mlflow.log_metric(\"reward_margin\", margin)\n       \
+          \             if metrics:\n                        metrics.log_metric(f\"\
+          {method}_reward_margin\", margin)\n                except ValueError:\n\
+          \                    pass\n\n    print(f\"[run_alignment:{method}] Done\
+          \ \u2192 {method_output_dir}\")\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n   \
+          \ num_epochs:       int   = 3,\n    learning_rate:    float = 5e-5,\n  \
+          \  max_steps:         int   = 10,\n    metrics:          Output[Metrics]\
+          \ = None,\n) -> str:\n    import os, subprocess\n    import mlflow\n\n \
+          \   workspace         = os.environ.get(\"WORKSPACE_PATH\", \"/workspace\"\
+          )\n    method_output_dir = os.path.join(output_dir, method)\n    os.makedirs(method_output_dir,\
+          \ exist_ok=True)\n\n    # RLOO has a two-part notebook; we run part-1 (reward\
+          \ model) in automated pipelines\n    if method == \"rloo\":\n        notebook_in\
+          \ = os.path.join(\n            workspace, \"experiments\", \"02_post_training\"\
+          ,\n            \"train_rloo_part1_reward_model.ipynb\",\n        )\n   \
+          \ else:\n        notebook_in = os.path.join(\n            workspace, \"\
+          experiments\", \"02_post_training\",\n            f\"train_{method}.ipynb\"\
+          ,\n        )\n\n    notebook_out = os.path.join(method_output_dir, f\"train_{method}_executed.ipynb\"\
+          )\n\n    mlflow.set_tracking_uri(os.environ.get(\"MLFLOW_TRACKING_URI\"\
+          , \"http://localhost:5000\"))\n    mlflow.set_experiment(\"arabic-medical-alignment\"\
+          )\n\n    with mlflow.start_run(run_name=method):\n        mlflow.log_params({\n\
+          \            \"method\":  method,\n            \"epochs\":  num_epochs,\n\
+          \            \"lr\":      learning_rate,\n        })\n\n        cmd = [\n\
+          \            \"papermill\", notebook_in, notebook_out,\n            \"-p\"\
+          , \"SFT_ADAPTER_PATH\", sft_adapter_path,\n            \"-p\", \"DATASET_PATH\"\
+          ,     dataset_path,\n            \"-p\", \"OUTPUT_DIR\",       method_output_dir,\n\
+          \            \"-p\", \"NUM_EPOCHS\",       str(num_epochs),\n          \
+          \  \"-p\", \"LEARNING_RATE\",    str(learning_rate),\n            \"-p\"\
+          , \"MAX_STEPS\",        str(max_steps),\n        ]\n        print(f\"[run_alignment:{method}]\
+          \ Running: {' '.join(cmd)}\")\n        result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n\n        if result.returncode != 0:\n            print(f\"\
+          [run_alignment:{method}] Warning \u2014 failed:\\n{result.stderr}\")\n \
+          \           return \"\"   # Non-fatal: other methods may still succeed\n\
+          \n        # Parse reward_margin and log it\n        for line in result.stdout.splitlines():\n\
+          \            if \"reward_margin\" in line.lower():\n                try:\n\
+          \                    margin = float(line.split(\":\")[-1].strip())\n   \
+          \                 mlflow.log_metric(\"reward_margin\", margin)\n       \
+          \             if metrics:\n                        metrics.log_metric(f\"\
+          {method}_reward_margin\", margin)\n                except ValueError:\n\
+          \                    pass\n\n    print(f\"[run_alignment:{method}] Done\
+          \ \u2192 {method_output_dir}\")\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-3:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n   \
+          \ num_epochs:       int   = 3,\n    learning_rate:    float = 5e-5,\n  \
+          \  max_steps:         int   = 10,\n    metrics:          Output[Metrics]\
+          \ = None,\n) -> str:\n    import os, subprocess\n    import mlflow\n\n \
+          \   workspace         = os.environ.get(\"WORKSPACE_PATH\", \"/workspace\"\
+          )\n    method_output_dir = os.path.join(output_dir, method)\n    os.makedirs(method_output_dir,\
+          \ exist_ok=True)\n\n    # RLOO has a two-part notebook; we run part-1 (reward\
+          \ model) in automated pipelines\n    if method == \"rloo\":\n        notebook_in\
+          \ = os.path.join(\n            workspace, \"experiments\", \"02_post_training\"\
+          ,\n            \"train_rloo_part1_reward_model.ipynb\",\n        )\n   \
+          \ else:\n        notebook_in = os.path.join(\n            workspace, \"\
+          experiments\", \"02_post_training\",\n            f\"train_{method}.ipynb\"\
+          ,\n        )\n\n    notebook_out = os.path.join(method_output_dir, f\"train_{method}_executed.ipynb\"\
+          )\n\n    mlflow.set_tracking_uri(os.environ.get(\"MLFLOW_TRACKING_URI\"\
+          , \"http://localhost:5000\"))\n    mlflow.set_experiment(\"arabic-medical-alignment\"\
+          )\n\n    with mlflow.start_run(run_name=method):\n        mlflow.log_params({\n\
+          \            \"method\":  method,\n            \"epochs\":  num_epochs,\n\
+          \            \"lr\":      learning_rate,\n        })\n\n        cmd = [\n\
+          \            \"papermill\", notebook_in, notebook_out,\n            \"-p\"\
+          , \"SFT_ADAPTER_PATH\", sft_adapter_path,\n            \"-p\", \"DATASET_PATH\"\
+          ,     dataset_path,\n            \"-p\", \"OUTPUT_DIR\",       method_output_dir,\n\
+          \            \"-p\", \"NUM_EPOCHS\",       str(num_epochs),\n          \
+          \  \"-p\", \"LEARNING_RATE\",    str(learning_rate),\n            \"-p\"\
+          , \"MAX_STEPS\",        str(max_steps),\n        ]\n        print(f\"[run_alignment:{method}]\
+          \ Running: {' '.join(cmd)}\")\n        result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n\n        if result.returncode != 0:\n            print(f\"\
+          [run_alignment:{method}] Warning \u2014 failed:\\n{result.stderr}\")\n \
+          \           return \"\"   # Non-fatal: other methods may still succeed\n\
+          \n        # Parse reward_margin and log it\n        for line in result.stdout.splitlines():\n\
+          \            if \"reward_margin\" in line.lower():\n                try:\n\
+          \                    margin = float(line.split(\":\")[-1].strip())\n   \
+          \                 mlflow.log_metric(\"reward_margin\", margin)\n       \
+          \             if metrics:\n                        metrics.log_metric(f\"\
+          {method}_reward_margin\", margin)\n                except ValueError:\n\
+          \                    pass\n\n    print(f\"[run_alignment:{method}] Done\
+          \ \u2192 {method_output_dir}\")\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-4:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n   \
+          \ num_epochs:       int   = 3,\n    learning_rate:    float = 5e-5,\n  \
+          \  max_steps:         int   = 10,\n    metrics:          Output[Metrics]\
+          \ = None,\n) -> str:\n    import os, subprocess\n    import mlflow\n\n \
+          \   workspace         = os.environ.get(\"WORKSPACE_PATH\", \"/workspace\"\
+          )\n    method_output_dir = os.path.join(output_dir, method)\n    os.makedirs(method_output_dir,\
+          \ exist_ok=True)\n\n    # RLOO has a two-part notebook; we run part-1 (reward\
+          \ model) in automated pipelines\n    if method == \"rloo\":\n        notebook_in\
+          \ = os.path.join(\n            workspace, \"experiments\", \"02_post_training\"\
+          ,\n            \"train_rloo_part1_reward_model.ipynb\",\n        )\n   \
+          \ else:\n        notebook_in = os.path.join(\n            workspace, \"\
+          experiments\", \"02_post_training\",\n            f\"train_{method}.ipynb\"\
+          ,\n        )\n\n    notebook_out = os.path.join(method_output_dir, f\"train_{method}_executed.ipynb\"\
+          )\n\n    mlflow.set_tracking_uri(os.environ.get(\"MLFLOW_TRACKING_URI\"\
+          , \"http://localhost:5000\"))\n    mlflow.set_experiment(\"arabic-medical-alignment\"\
+          )\n\n    with mlflow.start_run(run_name=method):\n        mlflow.log_params({\n\
+          \            \"method\":  method,\n            \"epochs\":  num_epochs,\n\
+          \            \"lr\":      learning_rate,\n        })\n\n        cmd = [\n\
+          \            \"papermill\", notebook_in, notebook_out,\n            \"-p\"\
+          , \"SFT_ADAPTER_PATH\", sft_adapter_path,\n            \"-p\", \"DATASET_PATH\"\
+          ,     dataset_path,\n            \"-p\", \"OUTPUT_DIR\",       method_output_dir,\n\
+          \            \"-p\", \"NUM_EPOCHS\",       str(num_epochs),\n          \
+          \  \"-p\", \"LEARNING_RATE\",    str(learning_rate),\n            \"-p\"\
+          , \"MAX_STEPS\",        str(max_steps),\n        ]\n        print(f\"[run_alignment:{method}]\
+          \ Running: {' '.join(cmd)}\")\n        result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n\n        if result.returncode != 0:\n            print(f\"\
+          [run_alignment:{method}] Warning \u2014 failed:\\n{result.stderr}\")\n \
+          \           return \"\"   # Non-fatal: other methods may still succeed\n\
+          \n        # Parse reward_margin and log it\n        for line in result.stdout.splitlines():\n\
+          \            if \"reward_margin\" in line.lower():\n                try:\n\
+          \                    margin = float(line.split(\":\")[-1].strip())\n   \
+          \                 mlflow.log_metric(\"reward_margin\", margin)\n       \
+          \             if metrics:\n                        metrics.log_metric(f\"\
+          {method}_reward_margin\", margin)\n                except ValueError:\n\
+          \                    pass\n\n    print(f\"[run_alignment:{method}] Done\
+          \ \u2192 {method_output_dir}\")\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-5:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n   \
+          \ num_epochs:       int   = 3,\n    learning_rate:    float = 5e-5,\n  \
+          \  max_steps:         int   = 10,\n    metrics:          Output[Metrics]\
+          \ = None,\n) -> str:\n    import os, subprocess\n    import mlflow\n\n \
+          \   workspace         = os.environ.get(\"WORKSPACE_PATH\", \"/workspace\"\
+          )\n    method_output_dir = os.path.join(output_dir, method)\n    os.makedirs(method_output_dir,\
+          \ exist_ok=True)\n\n    # RLOO has a two-part notebook; we run part-1 (reward\
+          \ model) in automated pipelines\n    if method == \"rloo\":\n        notebook_in\
+          \ = os.path.join(\n            workspace, \"experiments\", \"02_post_training\"\
+          ,\n            \"train_rloo_part1_reward_model.ipynb\",\n        )\n   \
+          \ else:\n        notebook_in = os.path.join(\n            workspace, \"\
+          experiments\", \"02_post_training\",\n            f\"train_{method}.ipynb\"\
+          ,\n        )\n\n    notebook_out = os.path.join(method_output_dir, f\"train_{method}_executed.ipynb\"\
+          )\n\n    mlflow.set_tracking_uri(os.environ.get(\"MLFLOW_TRACKING_URI\"\
+          , \"http://localhost:5000\"))\n    mlflow.set_experiment(\"arabic-medical-alignment\"\
+          )\n\n    with mlflow.start_run(run_name=method):\n        mlflow.log_params({\n\
+          \            \"method\":  method,\n            \"epochs\":  num_epochs,\n\
+          \            \"lr\":      learning_rate,\n        })\n\n        cmd = [\n\
+          \            \"papermill\", notebook_in, notebook_out,\n            \"-p\"\
+          , \"SFT_ADAPTER_PATH\", sft_adapter_path,\n            \"-p\", \"DATASET_PATH\"\
+          ,     dataset_path,\n            \"-p\", \"OUTPUT_DIR\",       method_output_dir,\n\
+          \            \"-p\", \"NUM_EPOCHS\",       str(num_epochs),\n          \
+          \  \"-p\", \"LEARNING_RATE\",    str(learning_rate),\n            \"-p\"\
+          , \"MAX_STEPS\",        str(max_steps),\n        ]\n        print(f\"[run_alignment:{method}]\
+          \ Running: {' '.join(cmd)}\")\n        result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n\n        if result.returncode != 0:\n            print(f\"\
+          [run_alignment:{method}] Warning \u2014 failed:\\n{result.stderr}\")\n \
+          \           return \"\"   # Non-fatal: other methods may still succeed\n\
+          \n        # Parse reward_margin and log it\n        for line in result.stdout.splitlines():\n\
+          \            if \"reward_margin\" in line.lower():\n                try:\n\
+          \                    margin = float(line.split(\":\")[-1].strip())\n   \
+          \                 mlflow.log_metric(\"reward_margin\", margin)\n       \
+          \             if metrics:\n                        metrics.log_metric(f\"\
+          {method}_reward_margin\", margin)\n                except ValueError:\n\
+          \                    pass\n\n    print(f\"[run_alignment:{method}] Done\
+          \ \u2192 {method_output_dir}\")\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-alignment-6:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_alignment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_alignment(\n    sft_adapter_path: str,\n    dataset_path:\
+          \     str,\n    output_dir:       str,\n    method:           str,\n   \
+          \ num_epochs:       int   = 3,\n    learning_rate:    float = 5e-5,\n  \
+          \  max_steps:         int   = 10,\n    metrics:          Output[Metrics]\
+          \ = None,\n) -> str:\n    import os, subprocess\n    import mlflow\n\n \
+          \   workspace         = os.environ.get(\"WORKSPACE_PATH\", \"/workspace\"\
+          )\n    method_output_dir = os.path.join(output_dir, method)\n    os.makedirs(method_output_dir,\
+          \ exist_ok=True)\n\n    # RLOO has a two-part notebook; we run part-1 (reward\
+          \ model) in automated pipelines\n    if method == \"rloo\":\n        notebook_in\
+          \ = os.path.join(\n            workspace, \"experiments\", \"02_post_training\"\
+          ,\n            \"train_rloo_part1_reward_model.ipynb\",\n        )\n   \
+          \ else:\n        notebook_in = os.path.join(\n            workspace, \"\
+          experiments\", \"02_post_training\",\n            f\"train_{method}.ipynb\"\
+          ,\n        )\n\n    notebook_out = os.path.join(method_output_dir, f\"train_{method}_executed.ipynb\"\
+          )\n\n    mlflow.set_tracking_uri(os.environ.get(\"MLFLOW_TRACKING_URI\"\
+          , \"http://localhost:5000\"))\n    mlflow.set_experiment(\"arabic-medical-alignment\"\
+          )\n\n    with mlflow.start_run(run_name=method):\n        mlflow.log_params({\n\
+          \            \"method\":  method,\n            \"epochs\":  num_epochs,\n\
+          \            \"lr\":      learning_rate,\n        })\n\n        cmd = [\n\
+          \            \"papermill\", notebook_in, notebook_out,\n            \"-p\"\
+          , \"SFT_ADAPTER_PATH\", sft_adapter_path,\n            \"-p\", \"DATASET_PATH\"\
+          ,     dataset_path,\n            \"-p\", \"OUTPUT_DIR\",       method_output_dir,\n\
+          \            \"-p\", \"NUM_EPOCHS\",       str(num_epochs),\n          \
+          \  \"-p\", \"LEARNING_RATE\",    str(learning_rate),\n            \"-p\"\
+          , \"MAX_STEPS\",        str(max_steps),\n        ]\n        print(f\"[run_alignment:{method}]\
+          \ Running: {' '.join(cmd)}\")\n        result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n\n        if result.returncode != 0:\n            print(f\"\
+          [run_alignment:{method}] Warning \u2014 failed:\\n{result.stderr}\")\n \
+          \           return \"\"   # Non-fatal: other methods may still succeed\n\
+          \n        # Parse reward_margin and log it\n        for line in result.stdout.splitlines():\n\
+          \            if \"reward_margin\" in line.lower():\n                try:\n\
+          \                    margin = float(line.split(\":\")[-1].strip())\n   \
+          \                 mlflow.log_metric(\"reward_margin\", margin)\n       \
+          \             if metrics:\n                        metrics.log_metric(f\"\
+          {method}_reward_margin\", margin)\n                except ValueError:\n\
+          \                    pass\n\n    print(f\"[run_alignment:{method}] Done\
+          \ \u2192 {method_output_dir}\")\n    return method_output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-run-sft:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - run_sft
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' 'papermill'\
+          \ 'ipykernel' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef run_sft(\n    dataset_path:      str,\n    output_dir:      \
+          \  str,\n    base_model:        str   = \"unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit\"\
+          ,\n    num_epochs:        int   = 5,\n    learning_rate:     float = 2e-4,\n\
+          \    per_device_batch:  int   = 8,\n    grad_accumulation: int   = 8,\n\
+          \    max_steps:         int   = 100,\n    metrics:           Output[Metrics]\
+          \ = None,\n) -> str:\n    import os, subprocess, sys\n    import mlflow\n\
+          \n    # Support local Windows runs via WORKSPACE_PATH env var\n    workspace\
+          \    = os.environ.get(\"WORKSPACE_PATH\", \"/workspace\")\n    notebook_in\
+          \  = os.path.join(workspace, \"experiments\", \"01_sft\", \"train_sft_optimized.ipynb\"\
+          )\n    os.makedirs(output_dir, exist_ok=True)\n    notebook_out = os.path.join(output_dir,\
+          \ \"train_sft_executed.ipynb\")\n\n    mlflow.set_tracking_uri(os.environ.get(\"\
+          MLFLOW_TRACKING_URI\", \"http://localhost:5000\"))\n    mlflow.set_experiment(\"\
+          arabic-medical-sft\")\n\n    with mlflow.start_run():\n        mlflow.log_params({\n\
+          \            \"epochs\":    num_epochs,\n            \"lr\":        learning_rate,\n\
+          \            \"batch\":     per_device_batch,\n            \"grad_accum\"\
+          : grad_accumulation,\n            \"base_model\": base_model,\n        })\n\
+          \n        cmd = [\n            \"papermill\", notebook_in, notebook_out,\n\
+          \            \"-p\", \"DATASET_PATH\",  dataset_path,\n            \"-p\"\
+          , \"OUTPUT_DIR\",    output_dir,\n            \"-p\", \"BASE_MODEL\",  \
+          \  base_model,\n            \"-p\", \"NUM_EPOCHS\",    str(num_epochs),\n\
+          \            \"-p\", \"LEARNING_RATE\", str(learning_rate),\n          \
+          \  \"-p\", \"BATCH_SIZE\",    str(per_device_batch),\n            \"-p\"\
+          , \"GRAD_ACCUM\",    str(grad_accumulation),\n            \"-p\", \"MAX_STEPS\"\
+          ,     str(max_steps),\n        ]\n        print(f\"[run_sft] Running: {'\
+          \ '.join(cmd)}\")\n        result = subprocess.run(cmd, capture_output=True,\
+          \ text=True)\n\n        if result.returncode != 0:\n            print(f\"\
+          [run_sft] STDOUT:\\n{result.stdout}\")\n            print(f\"[run_sft] STDERR:\\\
+          n{result.stderr}\")\n            raise RuntimeError(\"SFT failed via Papermill\"\
+          )\n\n        # Parse final_loss from stdout and log it\n        for line\
+          \ in result.stdout.splitlines():\n            if \"final_loss\" in line.lower():\n\
+          \                try:\n                    loss = float(line.split(\":\"\
+          )[-1].strip())\n                    mlflow.log_metric(\"final_loss\", loss)\n\
+          \                    if metrics:\n                        metrics.log_metric(\"\
+          sft_final_loss\", loss)\n                except ValueError:\n          \
+          \          pass\n\n    print(f\"[run_sft] Done \u2192 {output_dir}\")\n\
+          \    return output_dir\n\n"
+        image: arabic-medical-llm/trainer:latest
+    exec-select-best-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - select_best_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'mlflow' &&\
+          \ \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef select_best_model(\n    dpo_path:   str,\n    ipo_path:   str,\n\
+          \    kto_path:   str,\n    orpo_path:  str,\n    simpo_path: str,\n    rloo_path:\
+          \  str,\n) -> str:\n    \"\"\"\n    In production: query MLflow for the\
+          \ run with the highest reward_margin.\n    Currently: prefer SimPO \u2192\
+          \ DPO \u2192 IPO \u2192 KTO \u2192 ORPO \u2192 RLOO.\n    \"\"\"\n    print(\"\
+          [select_best_model] Paths received:\")\n    for name, path in [\n      \
+          \  (\"SimPO\", simpo_path), (\"DPO\",  dpo_path),\n        (\"IPO\",   ipo_path),\
+          \   (\"KTO\",  kto_path),\n        (\"ORPO\",  orpo_path),  (\"RLOO\", rloo_path),\n\
+          \    ]:\n        print(f\"  {name}: {path or '(failed)'}\")\n\n    priority\
+          \ = [simpo_path, dpo_path, ipo_path, kto_path, orpo_path, rloo_path]\n \
+          \   best = next((p for p in priority if p), None)\n\n    if not best:\n\
+          \        raise RuntimeError(\"All alignment methods failed \u2014 no model\
+          \ to select.\")\n\n    print(f\"[select_best_model] Best \u2192 {best}\"\
+          )\n    return best\n\n"
+        image: pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel
+    exec-validate-dataset:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - validate_dataset
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' &&\
+          \ \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef validate_dataset(\n    dataset_path:     str,\n    expected_min_rows:\
+          \ int = 500,\n) -> str:\n    import os, json\n\n    required_files = [\n\
+          \        \"02_sft_responses.json\",\n        \"05_simpo_dataset_hard.json\"\
+          ,\n    ]\n    for fname in required_files:\n        fpath = os.path.join(dataset_path,\
+          \ fname)\n        if not os.path.exists(fpath):\n            print(f\"Warning:\
+          \ Missing dataset file {fpath}, assuming handled by generator.\")\n\n  \
+          \  print(f\"[validate_dataset] dataset_path={dataset_path} \u2192 OK\")\n\
+          \    return \"validation_passed\"\n\n"
+        image: pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel
+pipelineInfo:
+  description: 'E2E Pipeline: SFT -> Parallel Alignments -> Select Best -> Merge ->
+    Push to HF'
+  name: arabic-medical-llm-training-papermill
+root:
+  dag:
+    outputs:
+      artifacts:
+        run-alignment-2-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: run-alignment-2
+        run-alignment-3-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: run-alignment-3
+        run-alignment-4-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: run-alignment-4
+        run-alignment-5-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: run-alignment-5
+        run-alignment-6-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: run-alignment-6
+        run-alignment-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: run-alignment
+        run-sft-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: run-sft
+    tasks:
+      merge-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-merge-model
+        dependentTasks:
+        - select-best-model
+        inputs:
+          parameters:
+            adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: select-best-model
+            base_model:
+              componentInputParameter: base_model
+            output_dir:
+              componentInputParameter: merged_output_dir
+        taskInfo:
+          name: merge-model
+      push-to-huggingface:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-push-to-huggingface
+        dependentTasks:
+        - merge-model
+        inputs:
+          parameters:
+            hf_token:
+              componentInputParameter: hf_token
+            merged_model_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: merge-model
+            repo_id:
+              componentInputParameter: hf_repo_id
+        taskInfo:
+          name: push-to-huggingface
+      run-alignment:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            max_steps:
+              componentInputParameter: align_max_steps
+            method:
+              runtimeValue:
+                constant: dpo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment
+      run-alignment-2:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-2
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            max_steps:
+              componentInputParameter: align_max_steps
+            method:
+              runtimeValue:
+                constant: ipo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-2
+      run-alignment-3:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-3
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            max_steps:
+              componentInputParameter: align_max_steps
+            method:
+              runtimeValue:
+                constant: kto
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-3
+      run-alignment-4:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-4
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            max_steps:
+              componentInputParameter: align_max_steps
+            method:
+              runtimeValue:
+                constant: orpo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-4
+      run-alignment-5:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-5
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            max_steps:
+              componentInputParameter: align_max_steps
+            method:
+              runtimeValue:
+                constant: simpo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-5
+      run-alignment-6:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-alignment-6
+        dependentTasks:
+        - run-sft
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+            max_steps:
+              componentInputParameter: align_max_steps
+            method:
+              runtimeValue:
+                constant: rloo
+            output_dir:
+              componentInputParameter: alignment_output
+            sft_adapter_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-sft
+        taskInfo:
+          name: run-alignment-6
+      run-sft:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-sft
+        dependentTasks:
+        - validate-dataset
+        inputs:
+          parameters:
+            base_model:
+              componentInputParameter: base_model
+            dataset_path:
+              componentInputParameter: dataset_path
+            max_steps:
+              componentInputParameter: sft_max_steps
+            output_dir:
+              componentInputParameter: sft_output_dir
+        taskInfo:
+          name: run-sft
+      select-best-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-select-best-model
+        dependentTasks:
+        - run-alignment
+        - run-alignment-2
+        - run-alignment-3
+        - run-alignment-4
+        - run-alignment-5
+        - run-alignment-6
+        inputs:
+          parameters:
+            dpo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment
+            ipo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-2
+            kto_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-3
+            orpo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-4
+            rloo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-6
+            simpo_path:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: run-alignment-5
+        taskInfo:
+          name: select-best-model
+      validate-dataset:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-validate-dataset
+        inputs:
+          parameters:
+            dataset_path:
+              componentInputParameter: dataset_path
+        taskInfo:
+          name: validate-dataset
+  inputDefinitions:
+    parameters:
+      align_max_steps:
+        defaultValue: 10.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      alignment_output:
+        defaultValue: /outputs/alignments
+        isOptional: true
+        parameterType: STRING
+      base_model:
+        defaultValue: unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit
+        isOptional: true
+        parameterType: STRING
+      dataset_path:
+        defaultValue: /data/raw/alignment
+        isOptional: true
+        parameterType: STRING
+      hf_repo_id:
+        defaultValue: YourUsername/Arabic-Medical-LLM-Qwen-3B
+        isOptional: true
+        parameterType: STRING
+      hf_token:
+        defaultValue: YOUR_HF_TOKEN
+        isOptional: true
+        parameterType: STRING
+      merged_output_dir:
+        defaultValue: /outputs/merged_model_16bit
+        isOptional: true
+        parameterType: STRING
+      sft_max_steps:
+        defaultValue: 100.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      sft_output_dir:
+        defaultValue: /outputs/sft_adapter
+        isOptional: true
+        parameterType: STRING
+  outputDefinitions:
+    artifacts:
+      run-alignment-2-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      run-alignment-3-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      run-alignment-4-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      run-alignment-5-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      run-alignment-6-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      run-alignment-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      run-sft-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.7.0

@@ -56,6 +56,7 @@ def run_sft(
     learning_rate:     float = 2e-4,
     per_device_batch:  int   = 8,
     grad_accumulation: int   = 8,
+    max_steps:         int   = 100,
     metrics:           Output[Metrics] = None,
 ) -> str:
     import os, subprocess, sys
@@ -88,6 +89,7 @@ def run_sft(
             "-p", "LEARNING_RATE", str(learning_rate),
             "-p", "BATCH_SIZE",    str(per_device_batch),
             "-p", "GRAD_ACCUM",    str(grad_accumulation),
+            "-p", "MAX_STEPS",     str(max_steps),
         ]
         print(f"[run_sft] Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -124,6 +126,7 @@ def run_alignment(
     method:           str,
     num_epochs:       int   = 3,
     learning_rate:    float = 5e-5,
+    max_steps:         int   = 10,
     metrics:          Output[Metrics] = None,
 ) -> str:
     import os, subprocess
@@ -164,6 +167,7 @@ def run_alignment(
             "-p", "OUTPUT_DIR",       method_output_dir,
             "-p", "NUM_EPOCHS",       str(num_epochs),
             "-p", "LEARNING_RATE",    str(learning_rate),
+            "-p", "MAX_STEPS",        str(max_steps),
         ]
         print(f"[run_alignment:{method}] Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -301,7 +305,7 @@ def push_to_huggingface(
 # ── Pipeline Definition ───────────────────────────────────────────────────────
 @dsl.pipeline(
     name="arabic-medical-llm-training-papermill",
-    description="E2E Pipeline: SFT → Parallel Alignments → Select Best → Merge → Push to HF",
+    description="E2E Pipeline: SFT -> Parallel Alignments -> Select Best -> Merge -> Push to HF",
 )
 def arabic_medical_llm_pipeline(
     dataset_path:      str = "/data/raw/alignment",
@@ -311,6 +315,8 @@ def arabic_medical_llm_pipeline(
     base_model:        str = "unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit",
     hf_repo_id:        str = "YourUsername/Arabic-Medical-LLM-Qwen-3B",
     hf_token:          str = "YOUR_HF_TOKEN",
+    sft_max_steps:     int = 100,
+    align_max_steps:   int = 10,
 ):
     # Step 1 — Validate
     validation = validate_dataset(dataset_path=dataset_path)
@@ -320,17 +326,18 @@ def arabic_medical_llm_pipeline(
         dataset_path=dataset_path,
         output_dir=sft_output_dir,
         base_model=base_model,
+        max_steps=sft_max_steps,
     ).after(validation)
 
     # Step 3 — 6 Parallel Alignments
     sft_out = sft.outputs["Output"]
 
-    align_dpo   = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="dpo")
-    align_ipo   = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="ipo")
-    align_kto   = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="kto")
-    align_orpo  = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="orpo")
-    align_simpo = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="simpo")
-    align_rloo  = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="rloo")
+    align_dpo   = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="dpo", max_steps=align_max_steps)
+    align_ipo   = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="ipo", max_steps=align_max_steps)
+    align_kto   = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="kto", max_steps=align_max_steps)
+    align_orpo  = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="orpo", max_steps=align_max_steps)
+    align_simpo = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="simpo", max_steps=align_max_steps)
+    align_rloo  = run_alignment(sft_adapter_path=sft_out, dataset_path=dataset_path, output_dir=alignment_output, method="rloo", max_steps=align_max_steps)
 
     # Step 4 — Select Best
     best = select_best_model(

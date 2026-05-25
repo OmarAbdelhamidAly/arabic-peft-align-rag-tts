@@ -18,6 +18,11 @@ Run:  python validate_pipeline.py
 import os, sys, json, subprocess, importlib
 from pathlib import Path
 
+# Force UTF-8 encoding on Windows to support emojis in console
+if sys.platform.startswith("win"):
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+
 RESET  = "\033[0m"
 GREEN  = "\033[92m"
 RED    = "\033[91m"
@@ -47,7 +52,7 @@ def section(title):
     print(f"{BOLD}{CYAN}{'='*60}{RESET}")
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
-BASE = Path("E:/FineTuning/services/service-medical-llm/training")
+BASE = Path(__file__).resolve().parent.parent
 DATASET_PATH = BASE / "experiments/data_pipeline/processed_data/chatml_dataset.json"
 NOTEBOOK_IN  = BASE / "experiments/01_sft/train_sft_optimized.ipynb"
 OUTPUT_DIR   = BASE / "outputs/test_sft"
